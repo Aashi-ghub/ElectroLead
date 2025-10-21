@@ -8,7 +8,7 @@ import { BarChart3, MessageSquare, TrendingUp, Clock, Plus } from "lucide-react"
 
 export default function BuyerDashboard() {
   const router = useRouter()
-  const [user, setUser] = useState<{ name: string; role: string } | null>(null)
+  const [user, setUser] = useState<{ name: string; role: string; email: string } | null>(null)
   const [enquiries] = useState([
     {
       id: 1,
@@ -54,7 +54,7 @@ export default function BuyerDashboard() {
   if (!user) return null
 
   return (
-    <DashboardLayout userRole="buyer" userName={user.name} userEmail="buyer@electrolead.com">
+    <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
       {/* Stats */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
         {[
