@@ -150,10 +150,10 @@ export default function SellerRegisterPage() {
 
           {/* Buttons */}
           <div className="flex gap-4">
-            <Button variant="outline" onClick={() => router.back()} className="flex-1">
+            <Button variant="outline" onClick={() => router.back()} className="px-6">
               Back
             </Button>
-            <Button type="submit" className="flex-1">
+            <Button type="submit" className="px-6">
               Continue to KYC
             </Button>
           </div>

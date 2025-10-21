@@ -41,10 +41,10 @@ export default function KYCStatusPage() {
         </p>
 
         <div className="flex flex-col gap-3">
-          <Button onClick={() => router.push("/dashboard/buyer")} className="w-full">
+          <Button onClick={() => router.push("/dashboard/buyer")} className="px-6">
             Browse Marketplace
           </Button>
-          <Button variant="outline" className="w-full bg-transparent">
+          <Button variant="outline" className="px-6 bg-transparent">
             Contact Support
           </Button>
         </div>

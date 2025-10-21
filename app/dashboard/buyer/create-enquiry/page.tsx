@@ -264,16 +264,16 @@ export default function CreateEnquiryPage() {
           {/* Buttons */}
           <div className="flex gap-4 mt-8">
             {step > 1 && (
-              <Button variant="outline" onClick={() => setStep(step - 1)} className="flex-1">
+              <Button variant="outline" onClick={() => setStep(step - 1)} className="px-6">
                 Back
               </Button>
             )}
             {step < 3 ? (
-              <Button onClick={handleNext} className="flex-1">
+              <Button onClick={handleNext} className="px-6">
                 Next
               </Button>
             ) : (
-              <Button onClick={handleSubmit} className="flex-1">
+              <Button onClick={handleSubmit} className="px-6">
                 Publish Enquiry
               </Button>
             )}

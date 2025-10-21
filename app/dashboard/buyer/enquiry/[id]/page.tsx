@@ -118,10 +118,10 @@ export default function EnquiryDetailPage({ params }: { params: { id: string } }
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+                      <Button variant="outline" size="sm" className="px-4 bg-transparent">
                         <MessageSquare size={16} /> Message
                       </Button>
-                      <Button size="sm" className="flex-1">
+                      <Button size="sm" className="px-4">
                         Accept Quote
                       </Button>
                     </div>
@@ -156,13 +156,13 @@ export default function EnquiryDetailPage({ params }: { params: { id: string } }
             <Card className="p-6">
               <h2 className="text-lg font-semibold mb-4">Actions</h2>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button variant="outline" className="px-4 bg-transparent">
                   <Download size={16} /> Download Specs
                 </Button>
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button variant="outline" className="px-4 bg-transparent">
                   Extend Deadline
                 </Button>
-                <Button variant="outline" className="w-full text-destructive bg-transparent">
+                <Button variant="outline" className="px-4 text-destructive bg-transparent">
                   Close Enquiry
                 </Button>
               </div>

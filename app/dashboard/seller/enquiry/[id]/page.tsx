@@ -203,10 +203,10 @@ export default function SellerEnquiryDetailPage({ params }: { params: { id: stri
                   </div>
 
                   <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => setShowQuoteForm(false)} className="flex-1">
+                    <Button variant="outline" onClick={() => setShowQuoteForm(false)} className="px-6">
                       Cancel
                     </Button>
-                    <Button onClick={handleSubmitQuote} className="flex-1">
+                    <Button onClick={handleSubmitQuote} className="px-6">
                       Submit Quote
                     </Button>
                   </div>
@@ -240,13 +240,13 @@ export default function SellerEnquiryDetailPage({ params }: { params: { id: stri
             <Card className="p-6">
               <h2 className="text-lg font-semibold mb-4">Actions</h2>
               <div className="space-y-2">
-                <Button onClick={() => setShowQuoteForm(!showQuoteForm)} className="w-full">
+                <Button onClick={() => setShowQuoteForm(!showQuoteForm)} className="px-6">
                   {showQuoteForm ? "Hide Quote Form" : "Submit Quote"}
                 </Button>
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button variant="outline" className="px-4 bg-transparent">
                   <MessageSquare size={16} /> Contact Buyer
                 </Button>
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button variant="outline" className="px-4 bg-transparent">
                   <Download size={16} /> Download Specs
                 </Button>
               </div>

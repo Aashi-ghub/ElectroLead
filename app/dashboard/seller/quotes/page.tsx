@@ -100,11 +100,11 @@ export default function SellerQuotesPage() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+                <Button variant="outline" size="sm" className="px-4 bg-transparent">
                   View Details
                 </Button>
                 {quote.status === "pending" && (
-                  <Button size="sm" className="flex-1">
+                  <Button size="sm" className="px-4">
                     Edit Quote
                   </Button>
                 )}
