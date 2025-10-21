@@ -53,7 +53,7 @@ export default function SellerDashboard() {
           { label: "Total Value", value: "₹2.8Cr", icon: TrendingUp, color: "primary" },
           { label: "Rating", value: "4.7", icon: Star, color: "accent" },
         ].map((stat, i) => (
-          <div key={i} className="p-6 bg-white rounded-lg border border-border hover:border-accent transition-colors">
+          <div key={i} className="p-6 bg-white rounded-2xl border border-border hover:border-accent transition-colors">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-foreground/60 mb-1">{stat.label}</p>
@@ -88,7 +88,7 @@ export default function SellerDashboard() {
           {leads.map((lead) => (
             <div
               key={lead.id}
-              className="p-6 bg-white rounded-lg border border-border hover:border-accent hover:shadow-md transition-all"
+              className="p-6 bg-white rounded-2xl border border-border hover:border-accent hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between mb-4">
                 <div>

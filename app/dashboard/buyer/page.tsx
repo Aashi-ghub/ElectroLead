@@ -63,7 +63,7 @@ export default function BuyerDashboard() {
           { label: "Total Value", value: "₹45L", icon: BarChart3, color: "primary" },
           { label: "Avg Response", value: "24h", icon: Clock, color: "accent" },
         ].map((stat, i) => (
-          <div key={i} className="p-6 bg-white rounded-lg border border-border hover:border-accent transition-colors">
+          <div key={i} className="p-6 bg-white rounded-2xl border border-border hover:border-accent transition-colors">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-foreground/60 mb-1">{stat.label}</p>
@@ -98,7 +98,7 @@ export default function BuyerDashboard() {
           {enquiries.map((enquiry) => (
             <div
               key={enquiry.id}
-              className="p-6 bg-white rounded-lg border border-border hover:border-accent hover:shadow-md transition-all"
+              className="p-6 bg-white rounded-2xl border border-border hover:border-accent hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between mb-4">
                 <div>

@@ -12,7 +12,7 @@ interface StatCardProps {
 
 function StatCard({ icon, label, value, change, trend }: StatCardProps) {
   return (
-    <Card>
+    <Card className="rounded-2xl">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-medium text-foreground/70">{label}</CardTitle>
       </CardHeader>
@@ -24,7 +24,7 @@ function StatCard({ icon, label, value, change, trend }: StatCardProps) {
             {change}
           </div>
         </div>
-        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">{icon}</div>
+        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">{icon}</div>
       </CardContent>
     </Card>
   )
