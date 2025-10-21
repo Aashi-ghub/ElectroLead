@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
-import AppNavbar from "@/components/app-navbar"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -30,7 +29,6 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} antialiased`} style={{ fontFamily: "'Open Sans', sans-serif" }}>
-        <AppNavbar />
         {children}
         <Analytics />
       </body>

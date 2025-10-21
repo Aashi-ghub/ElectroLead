@@ -1,6 +1,8 @@
 "use client"
 
-import { Navigation } from "@/components/navigation"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import DashboardLayout from "@/components/dashboard-layout"
 import { DashboardStats } from "@/components/dashboard-stats"
 import { EnquiryCard } from "@/components/enquiry-card"
 import { FilterSearch } from "@/components/filter-search"
@@ -56,13 +58,26 @@ const enquiries = [
 ]
 
 export default function Dashboard() {
-  return (
-    <main className="min-h-screen bg-background">
-      <Navigation />
+  const router = useRouter()
+  const [user, setUser] = useState<{ name: string; role: string; email: string } | null>(null)
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      const userData = JSON.parse(storedUser)
+      setUser(userData)
+    } else {
+      router.push("/auth/login")
+    }
+  }, [router])
+
+  if (!user) return null
+
+  return (
+    <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
+      <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <p className="text-foreground/60 mt-1">Welcome back! Here's your sourcing overview</p>
@@ -74,14 +89,10 @@ export default function Dashboard() {
         </div>
 
         {/* Stats */}
-        <div className="mb-8">
-          <DashboardStats />
-        </div>
+        <DashboardStats />
 
         {/* Search and Filters */}
-        <div className="mb-8">
-          <FilterSearch />
-        </div>
+        <FilterSearch />
 
         {/* Enquiries Section */}
         <div className="space-y-6">
@@ -120,6 +131,6 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
-    </main>
+    </DashboardLayout>
   )
 }

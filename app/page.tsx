@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ArrowRight, CheckCircle, Zap, Shield, Users, TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
+import { Navigation } from "@/components/navigation"
 
 export default function Home() {
   const [user, setUser] = useState<{ name: string; role: string } | null>(null)
@@ -16,6 +17,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white">
+      <Navigation />
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-20 pb-32 sm:pt-32 sm:pb-40">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />

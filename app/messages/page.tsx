@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Send, Search } from "lucide-react"
+import AppNavbar from "@/components/app-navbar"
 
 export default function MessagesPage() {
   const router = useRouter()
@@ -58,6 +59,7 @@ export default function MessagesPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      <AppNavbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid md:grid-cols-3 gap-6 h-[600px]">
           {/* Chat List */}
