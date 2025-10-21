@@ -71,7 +71,7 @@ export default function SellerMessagesPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid md:grid-cols-3 gap-6 h-[600px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-[calc(100vh-200px)] lg:h-[600px]">
           {/* Conversations List */}
           <Card className="p-4 overflow-y-auto">
             <h2 className="font-semibold mb-4">Conversations</h2>
