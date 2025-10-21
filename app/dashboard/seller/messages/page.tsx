@@ -1,12 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
+import DashboardLayout from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ArrowLeft, Send } from "lucide-react"
 
 export default function SellerMessagesPage() {
+  const router = useRouter()
+  const [user, setUser] = useState<{ name: string; role: string; email: string } | null>(null)
   const [selectedConversation, setSelectedConversation] = useState(0)
   const [message, setMessage] = useState("")
 
@@ -39,7 +43,20 @@ export default function SellerMessagesPage() {
     }
   }
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      const userData = JSON.parse(storedUser)
+      setUser(userData)
+    } else {
+      router.push("/auth/login")
+    }
+  }, [router])
+
+  if (!user) return null
+
   return (
+    <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card sticky top-0 z-50">
@@ -121,5 +138,6 @@ export default function SellerMessagesPage() {
         </div>
       </main>
     </div>
+    </DashboardLayout>
   )
 }

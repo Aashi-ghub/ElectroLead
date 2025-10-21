@@ -1,12 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
+import DashboardLayout from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ArrowLeft, Search } from "lucide-react"
 
 export default function SellerQuotesPage() {
+  const router = useRouter()
+  const [user, setUser] = useState<{ name: string; role: string; email: string } | null>(null)
   const [quotes] = useState([
     {
       id: 1,
@@ -34,7 +38,20 @@ export default function SellerQuotesPage() {
     },
   ])
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      const userData = JSON.parse(storedUser)
+      setUser(userData)
+    } else {
+      router.push("/auth/login")
+    }
+  }, [router])
+
+  if (!user) return null
+
   return (
+    <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card sticky top-0 z-50">
@@ -97,5 +114,6 @@ export default function SellerQuotesPage() {
         </div>
       </main>
     </div>
+    </DashboardLayout>
   )
 }
