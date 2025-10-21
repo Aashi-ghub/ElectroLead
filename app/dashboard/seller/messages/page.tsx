@@ -70,8 +70,8 @@ export default function SellerMessagesPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-[calc(100vh-200px)] lg:h-[600px]">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 pt-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 h-[calc(100vh-300px)] lg:h-[600px]">
           {/* Conversations List */}
           <Card className="p-4 overflow-y-auto">
             <h2 className="font-semibold mb-4">Conversations</h2>
