@@ -7,7 +7,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Load test environment variables (use .env file)
-dotenv.config({ path: join(__dirname, '../.env') });
+// Try backend/.env first, then root .env
+const envPath = join(__dirname, '../.env');
+dotenv.config({ path: envPath });
+
+// Also try loading from root if backend/.env doesn't exist
+if (!process.env.DATABASE_URL) {
+  const rootEnvPath = join(__dirname, '../../.env');
+  dotenv.config({ path: rootEnvPath });
+}
 
 // Set test environment
 process.env.NODE_ENV = 'test';
