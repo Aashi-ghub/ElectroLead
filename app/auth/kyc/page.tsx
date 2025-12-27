@@ -51,8 +51,8 @@ export default function KYCPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl p-8 sm:p-12">
+    <div className="min-h-screen bg-[var(--isabella)] flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl p-8 sm:p-12 border border-border rounded-[14px] bg-[var(--surface-panel)] shadow-none">
         {/* Progress */}
         <div className="mb-8">
           <div className="flex justify-between mb-4">

@@ -3,7 +3,9 @@ import { testPool, truncateAll, runMigrations } from './helpers/db.js';
 
 describe('Database Schema Integrity Tests', () => {
   beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 50));
     await truncateAll();
+    await new Promise(resolve => setTimeout(resolve, 50));
   });
 
   describe('Schema Creation', () => {
@@ -16,7 +18,7 @@ describe('Database Schema Integrity Tests', () => {
           WHERE table_schema = 'public' 
           AND table_type = 'BASE TABLE'
           ORDER BY table_name;
-        `);
+      `);
 
         const tables = result.rows.map((r) => r.table_name);
         
@@ -36,7 +38,7 @@ describe('Database Schema Integrity Tests', () => {
       try {
         const result = await client.query(`
           SELECT * FROM pg_extension WHERE extname = 'uuid-ossp';
-        `);
+      `);
         expect(result.rows.length).toBeGreaterThan(0);
       } finally {
         client.release();
@@ -153,12 +155,12 @@ describe('Database Schema Integrity Tests', () => {
     it('should enforce NOT NULL on buyer_id', async () => {
       const client = await testPool.connect();
       try {
-        await expect(
+      await expect(
           client.query(`
             INSERT INTO enquiries (title, city)
             VALUES ('Test Enquiry', 'Mumbai');
           `)
-        ).rejects.toThrow();
+      ).rejects.toThrow();
       } finally {
         client.release();
       }
@@ -174,12 +176,12 @@ describe('Database Schema Integrity Tests', () => {
         `);
         const buyerId = userResult.rows[0].id;
 
-        await expect(
+      await expect(
           client.query(`
             INSERT INTO enquiries (buyer_id, city)
             VALUES ($1, 'Mumbai');
           `, [buyerId])
-        ).rejects.toThrow();
+      ).rejects.toThrow();
       } finally {
         client.release();
       }
@@ -195,12 +197,12 @@ describe('Database Schema Integrity Tests', () => {
         `);
         const buyerId = userResult.rows[0].id;
 
-        await expect(
+      await expect(
           client.query(`
             INSERT INTO enquiries (buyer_id, title)
             VALUES ($1, 'Test Enquiry');
           `, [buyerId])
-        ).rejects.toThrow();
+      ).rejects.toThrow();
       } finally {
         client.release();
       }
@@ -215,8 +217,8 @@ describe('Database Schema Integrity Tests', () => {
           RETURNING id;
         `);
         const buyerId = userResult.rows[0].id;
-
-        await expect(
+      
+      await expect(
           client.query(`
             INSERT INTO enquiries (buyer_id, title, city, status)
             VALUES ($1, 'Test', 'Mumbai', 'invalid_status');
@@ -236,7 +238,7 @@ describe('Database Schema Integrity Tests', () => {
             INSERT INTO enquiries (buyer_id, title, city)
             VALUES ($1, 'Test', 'Mumbai');
           `, [fakeUserId])
-        ).rejects.toThrow();
+      ).rejects.toThrow();
       } finally {
         client.release();
       }
@@ -254,12 +256,12 @@ describe('Database Schema Integrity Tests', () => {
         `);
         const sellerId = userResult.rows[0].id;
 
-        await expect(
+      await expect(
           client.query(`
             INSERT INTO quotations (seller_id, total_price)
             VALUES ($1, 10000);
           `, [sellerId])
-        ).rejects.toThrow();
+      ).rejects.toThrow();
       } finally {
         client.release();
       }
@@ -281,13 +283,13 @@ describe('Database Schema Integrity Tests', () => {
           RETURNING id;
         `, [buyerId]);
         const enquiryId = enquiryResult.rows[0].id;
-
-        await expect(
+      
+      await expect(
           client.query(`
             INSERT INTO quotations (enquiry_id, total_price)
             VALUES ($1, 10000);
           `, [enquiryId])
-        ).rejects.toThrow();
+      ).rejects.toThrow();
       } finally {
         client.release();
       }
@@ -408,12 +410,12 @@ describe('Database Schema Integrity Tests', () => {
         const enquiryId = enquiryResult.rows[0].id;
 
         const fakeSellerId = '00000000-0000-0000-0000-000000000000';
-        await expect(
+      await expect(
           client.query(`
             INSERT INTO quotations (enquiry_id, seller_id, total_price)
             VALUES ($1, $2, 10000);
           `, [enquiryId, fakeSellerId])
-        ).rejects.toThrow();
+      ).rejects.toThrow();
       } finally {
         client.release();
       }
@@ -443,12 +445,12 @@ describe('Database Schema Integrity Tests', () => {
         `, [buyerId]);
         const enquiryId = enquiryResult.rows[0].id;
 
-        await expect(
+      await expect(
           client.query(`
             INSERT INTO quotations (enquiry_id, seller_id, total_price, status)
             VALUES ($1, $2, 10000, 'invalid_status');
           `, [enquiryId, sellerId])
-        ).rejects.toThrow();
+      ).rejects.toThrow();
       } finally {
         client.release();
       }
@@ -589,7 +591,7 @@ describe('Database Schema Integrity Tests', () => {
           SELECT indexname 
           FROM pg_indexes 
           WHERE tablename = 'enquiries' AND indexname = 'idx_enquiries_city';
-        `);
+      `);
         expect(result.rows.length).toBe(1);
       } finally {
         client.release();
@@ -603,7 +605,7 @@ describe('Database Schema Integrity Tests', () => {
           SELECT indexname 
           FROM pg_indexes 
           WHERE tablename = 'enquiries' AND indexname = 'idx_enquiries_buyer_id';
-        `);
+      `);
         expect(result.rows.length).toBe(1);
       } finally {
         client.release();
@@ -617,7 +619,7 @@ describe('Database Schema Integrity Tests', () => {
           SELECT indexname 
           FROM pg_indexes 
           WHERE tablename = 'quotations' AND indexname = 'idx_quotations_enquiry_id';
-        `);
+      `);
         expect(result.rows.length).toBe(1);
       } finally {
         client.release();
@@ -631,7 +633,7 @@ describe('Database Schema Integrity Tests', () => {
           SELECT indexname 
           FROM pg_indexes 
           WHERE tablename = 'quotations' AND indexname = 'idx_quotations_seller_id';
-        `);
+      `);
         expect(result.rows.length).toBe(1);
       } finally {
         client.release();
@@ -645,7 +647,7 @@ describe('Database Schema Integrity Tests', () => {
           SELECT indexname 
           FROM pg_indexes 
           WHERE tablename = 'subscriptions' AND indexname = 'idx_subscriptions_user_id';
-        `);
+      `);
         expect(result.rows.length).toBe(1);
       } finally {
         client.release();

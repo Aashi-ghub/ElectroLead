@@ -1,4 +1,4 @@
-# ElectroLead V1.0 - Quick Setup Guide
+# VoltSupply V1.0 - Quick Setup Guide
 
 ## Prerequisites
 - Node.js 18+ (LTS)
@@ -121,3 +121,7 @@ curl -X POST http://localhost:3000/api/login \
 - Verify Razorpay credentials
 - Check Razorpay webhook (if needed)
 - Verify frontend Razorpay key
+
+
+
+

@@ -1,7 +1,7 @@
 {
   "name": "electrolead-backend",
   "version": "1.0.0",
-  "description": "ElectroLead B2B Platform Backend",
+  "description": "VoltSupply B2B Platform Backend",
   "main": "server.js",
   "type": "module",
   "scripts": {

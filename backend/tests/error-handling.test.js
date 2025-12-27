@@ -13,7 +13,9 @@ beforeAll(async () => {
 
 describe('Error Handling Tests', () => {
   beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 50));
     await truncateAll();
+    await new Promise(resolve => setTimeout(resolve, 50));
   });
 
   afterAll(() => {
@@ -170,27 +172,22 @@ describe('Error Handling Tests', () => {
     });
 
     it('should return 404 for non-existent user profile', async () => {
-      // This would require a user that was deleted
-      // For now, we test the structure
-      const { token } = await createTestBuyer();
+      // Create a user and get their token
+      const { user, token } = await createTestBuyer();
 
-      // Delete user
+      // Delete the user
       const { testPool } = await import('./helpers/db.js');
-      const userResult = await testPool.query(
-        'SELECT id FROM users WHERE email LIKE $1',
-        ['test-%']
-      );
+      await testPool.query('DELETE FROM users WHERE id = $1', [user.id]);
       
-      if (userResult.rows.length > 0) {
-        await testPool.query('DELETE FROM users WHERE id = $1', [userResult.rows[0].id]);
-        
-        const response = await request(app)
-          .get('/api/profile')
-          .set(getAuthHeader(token));
+      // Wait for deletion
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const response = await request(app)
+        .get('/api/profile')
+        .set(getAuthHeader(token));
 
-        // Should return 401 (invalid token) or 404 (user not found)
-        expect([401, 404]).toContain(response.status);
-      }
+      // Should return 401 (invalid token) since user no longer exists
+      expect(response.status).toBe(401);
     });
   });
 
@@ -235,7 +232,7 @@ describe('Error Handling Tests', () => {
       if (response.body.error) {
         expect(response.body.error).not.toContain('at ');
         expect(response.body.error).not.toContain('Error:');
-        expect(response.body).not.toHaveProperty('stack');
+      expect(response.body).not.toHaveProperty('stack');
       }
     });
 

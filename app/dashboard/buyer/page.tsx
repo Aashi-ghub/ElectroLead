@@ -57,19 +57,19 @@ export default function BuyerDashboard() {
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
       {/* Stats */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: "Active Enquiries", value: "12", icon: TrendingUp, color: "primary" },
-          { label: "Responses Pending", value: "8", icon: Clock, color: "accent" },
-          { label: "Total Value", value: "₹45L", icon: BarChart3, color: "primary" },
-          { label: "Avg Response", value: "24h", icon: Clock, color: "accent" },
-        ].map((stat, i) => (
-          <div key={i} className="p-6 bg-white rounded-2xl border border-border hover:border-accent transition-colors">
+          {[
+            { label: "Active Enquiries", value: "12", icon: TrendingUp },
+            { label: "Responses Pending", value: "8", icon: Clock },
+            { label: "Total Value", value: "₹45L", icon: BarChart3 },
+            { label: "Avg Response", value: "24h", icon: Clock },
+          ].map((stat, i) => (
+          <div key={i} className="p-6 bg-[var(--isabella)] rounded-xl border border-border hover:border-primary/60 transition-colors">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-foreground/60 mb-1">{stat.label}</p>
                 <p className="text-3xl font-bold text-primary">{stat.value}</p>
               </div>
-              <stat.icon className="text-accent" size={32} />
+              <stat.icon className="text-[var(--reseda-green)]" size={32} />
             </div>
           </div>
         ))}
@@ -98,7 +98,7 @@ export default function BuyerDashboard() {
           {enquiries.map((enquiry) => (
             <div
               key={enquiry.id}
-              className="p-6 bg-white rounded-2xl border border-border hover:border-accent hover:shadow-md transition-all"
+              className="p-6 bg-[var(--surface-panel)] rounded-xl border border-border hover:border-primary/60 transition-all"
             >
               <div className="flex items-start justify-between mb-4">
                 <div>
@@ -123,7 +123,7 @@ export default function BuyerDashboard() {
                 <div className="flex gap-6 text-sm">
                   <span className="text-foreground/60">{enquiry.quotes} Quotes</span>
                   <span className="text-foreground/60">{enquiry.messages} Messages</span>
-                  {enquiry.daysLeft > 0 && <span className="text-accent">{enquiry.daysLeft} days left</span>}
+                  {enquiry.daysLeft > 0 && <span className="text-[var(--reseda-green)]">{enquiry.daysLeft} days left</span>}
                 </div>
                 <Link href={`/dashboard/buyer/enquiry/${enquiry.id}`} className="btn-outline text-sm">
                   View Details

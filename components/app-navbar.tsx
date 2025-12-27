@@ -39,19 +39,14 @@ function AppNavbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "mx-4 mt-4 rounded-full bg-white/95 backdrop-blur-md border border-border shadow-lg"
-          : "w-full bg-white border-b border-border"
+        isScrolled ? "bg-[var(--isabella)] text-[var(--jet-black)]" : "bg-[var(--isabella)] text-[var(--jet-black)]"
       }`}
     >
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${isScrolled ? "px-6" : ""}`}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-border">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-              <span className="text-white font-bold text-sm">EL</span>
-            </div>
-            <span className="font-bold text-lg hidden sm:inline">ElectroLead</span>
+          <Link href="/" className="flex items-center">
+            <span className="font-semibold text-base tracking-tight text-[var(--jet-black)]">VoltSupply</span>
           </Link>
 
           {/* Desktop Menu */}
@@ -98,9 +93,9 @@ function AppNavbar() {
           <div className="flex items-center gap-4">
             {user ? (
               <div className="flex items-center gap-3">
-                <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-md bg-muted">
-                  <User size={16} className="text-accent" />
-                  <span className="text-sm font-medium">{user.name}</span>
+                <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-[6px] bg-muted border border-border">
+                  <User size={16} className="text-primary" />
+                  <span className="text-sm font-medium tracking-tight">{user.name}</span>
                 </div>
                 <button onClick={handleLogout} className="btn-outline flex items-center gap-2">
                   <LogOut size={16} />
@@ -119,10 +114,7 @@ function AppNavbar() {
             )}
 
             {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2 hover:bg-muted rounded-md transition-colors"
-            >
+            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 hover:bg-muted rounded-[6px] transition-colors">
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
@@ -130,7 +122,7 @@ function AppNavbar() {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden border-t border-border py-4 space-y-3">
+          <div className="md:hidden border-t border-border py-4 space-y-3 bg-background">
             {user ? (
               <>
                 <Link href="/" className="block px-4 py-2 text-sm hover:bg-muted rounded-md transition-colors">

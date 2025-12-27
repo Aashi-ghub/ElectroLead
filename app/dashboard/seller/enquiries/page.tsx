@@ -90,7 +90,7 @@ export default function SellerEnquiriesPage() {
         {/* Enquiries List */}
         <div className="space-y-4">
           {enquiries.map((enquiry) => (
-            <Card key={enquiry.id} className="p-6 hover:shadow-md transition-shadow">
+            <Card key={enquiry.id} className="p-6 border border-border bg-card hover:border-primary/60 transition-colors">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg">{enquiry.title}</h3>

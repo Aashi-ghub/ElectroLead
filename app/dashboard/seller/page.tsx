@@ -47,19 +47,19 @@ export default function SellerDashboard() {
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
       {/* Stats */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: "Active Leads", value: "24", icon: TrendingUp, color: "primary" },
-          { label: "Quote Acceptance", value: "45%", icon: BarChart3, color: "accent" },
-          { label: "Total Value", value: "₹2.8Cr", icon: TrendingUp, color: "primary" },
-          { label: "Rating", value: "4.7", icon: Star, color: "accent" },
-        ].map((stat, i) => (
-          <div key={i} className="p-6 bg-white rounded-2xl border border-border hover:border-accent transition-colors">
+          {[
+            { label: "Active Leads", value: "24", icon: TrendingUp },
+            { label: "Quote Acceptance", value: "45%", icon: BarChart3 },
+            { label: "Total Value", value: "₹2.8Cr", icon: TrendingUp },
+            { label: "Rating", value: "4.7", icon: Star },
+          ].map((stat, i) => (
+          <div key={i} className="p-6 bg-[var(--isabella)] rounded-xl border border-border hover:border-primary/60 transition-colors">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-foreground/60 mb-1">{stat.label}</p>
                 <p className="text-3xl font-bold text-primary">{stat.value}</p>
               </div>
-              <stat.icon className="text-accent" size={32} />
+              <stat.icon className="text-[var(--reseda-green)]" size={32} />
             </div>
           </div>
         ))}
@@ -88,7 +88,7 @@ export default function SellerDashboard() {
           {leads.map((lead) => (
             <div
               key={lead.id}
-              className="p-6 bg-white rounded-2xl border border-border hover:border-accent hover:shadow-md transition-all"
+              className="p-6 bg-[var(--surface-panel)] rounded-xl border border-border hover:border-primary/60 transition-all"
             >
               <div className="flex items-start justify-between mb-4">
                 <div>

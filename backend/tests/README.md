@@ -1,8 +1,8 @@
-# ElectroLead V1 - Test Suite Documentation
+# VoltSupply V1 - Test Suite Documentation
 
 ## Overview
 
-This test suite provides comprehensive coverage for the ElectroLead V1 backend, focusing on security, correctness, and regression prevention.
+This test suite provides comprehensive coverage for the VoltSupply V1 backend, focusing on security, correctness, and regression prevention.
 
 ## Test Structure
 
@@ -107,7 +107,7 @@ npm run test:coverage
 - Free seller enquiry visibility
 - Free seller quote limits
 - Subscription activation
-- Subscription expiry enforcement
+   - Subscription expiry enforcement
 - Plan-based scope (local/state/national)
 - Buyer subscription restrictions
 

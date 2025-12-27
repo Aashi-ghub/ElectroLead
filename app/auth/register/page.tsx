@@ -15,87 +15,86 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-      <div className="absolute top-20 right-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl" />
-
-      <div className="relative w-full max-w-2xl">
-        <div className="text-center mb-12">
-          <div className="inline-block px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-semibold mb-4">
-            ✨ Join ElectroLead
+    <div className="min-h-screen bg-[var(--isabella)] px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center">
+      <div className="w-full max-w-5xl bg-[var(--surface-panel)] border border-border rounded-[16px] p-8 sm:p-12 space-y-10">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div className="space-y-3">
+            <p className="text-xs uppercase tracking-[0.08em] text-foreground/60">Create your role</p>
+            <h1 className="text-4xl sm:text-5xl font-semibold leading-[1.05]">Choose how you work on VoltSupply.</h1>
+            <p className="text-base text-foreground/70 max-w-2xl">
+              Built for electrical procurement teams and suppliers. Pick the workspace that matches how you do business.
+            </p>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-primary mb-3">Choose Your Profile</h1>
-          <p className="text-lg text-foreground/60">Get started in seconds</p>
+          <div className="flex items-center gap-2 text-sm text-foreground/70">
+            <span className="h-5 w-1 bg-primary rounded-full" />
+            Verified onboarding with KYC controls.
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 gap-6">
           {/* Buyer Card */}
           <button
             onClick={() => handleSelect("buyer")}
-            className="group relative p-8 bg-white border border-border rounded-lg hover:border-primary hover:shadow-lg transition-all duration-300 text-left overflow-hidden"
+            className="group relative text-left border border-border rounded-[12px] p-6 sm:p-8 bg-background hover:border-primary transition-colors"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <span className="text-2xl">⚡</span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-primary/10 border border-primary/30 rounded-[10px] flex items-center justify-center text-primary text-xl">
+                ⚡
               </div>
-              <h2 className="text-2xl font-bold text-primary mb-4">Buyer</h2>
-              <ul className="space-y-3 text-sm text-foreground/70 mb-6">
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-                  Post Enquiries
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-                  Get Quotes
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-                  Compare Offers
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-                  Manage Projects
-                </li>
-              </ul>
-              <button className="btn-primary w-full flex items-center justify-center gap-2 group-hover:gap-3 transition-all">
-                Select <ArrowRight size={16} />
-              </button>
+              <span className="text-xs uppercase tracking-[0.08em] text-foreground/60">Procurement</span>
+            </div>
+            <h2 className="text-2xl font-semibold mb-4">Buyer workspace</h2>
+            <ul className="space-y-3 text-sm text-foreground/70 mb-6">
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full" />
+                Post enquiries with specs
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full" />
+                Compare verified supplier quotes
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full" />
+                Track approvals and delivery
+              </li>
+            </ul>
+            <div className="mt-4 flex justify-center">
+              <span className="btn-primary inline-flex items-center justify-center gap-2">
+                Select Buyer <ArrowRight size={16} />
+              </span>
             </div>
           </button>
 
           {/* Seller Card */}
           <button
             onClick={() => handleSelect("seller")}
-            className="group relative p-8 bg-white border border-border rounded-lg hover:border-accent hover:shadow-lg transition-all duration-300 text-left overflow-hidden"
+            className="group relative text-left border border-border rounded-[12px] p-6 sm:p-8 bg-background hover:border-primary transition-colors"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative">
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <span className="text-2xl">🏭</span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-secondary text-primary-foreground border border-border rounded-[10px] flex items-center justify-center text-lg">
+                🏭
               </div>
-              <h2 className="text-2xl font-bold text-primary mb-4">Seller</h2>
-              <ul className="space-y-3 text-sm text-foreground/70 mb-6">
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-                  Receive Leads
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-                  Submit Quotes
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-                  Grow Business
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-                  Build Network
-                </li>
-              </ul>
-              <button className="btn-outline w-full flex items-center justify-center gap-2 group-hover:gap-3 transition-all">
-                Select <ArrowRight size={16} />
-              </button>
+              <span className="text-xs uppercase tracking-[0.08em] text-foreground/60">Supply</span>
+            </div>
+            <h2 className="text-2xl font-semibold mb-4">Seller workspace</h2>
+            <ul className="space-y-3 text-sm text-foreground/70 mb-6">
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full" />
+                Receive qualified leads
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full" />
+                Submit quotes with delivery terms
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full" />
+                Build reputation with on-time jobs
+              </li>
+            </ul>
+            <div className="mt-4 flex justify-center">
+              <span className="btn-outline inline-flex items-center justify-center gap-2">
+                Select Seller <ArrowRight size={16} />
+              </span>
             </div>
           </button>
         </div>

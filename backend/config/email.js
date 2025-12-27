@@ -34,7 +34,7 @@ export const sendOTPEmail = async (email, otp, subject = null, html = null) => {
   const mailOptions = {
     from: process.env.SMTP_USER || 'noreply@electrolead.com',
     to: email,
-    subject: subject || 'ElectroLead - Your OTP Code',
+    subject: subject || 'VoltSupply - Your OTP Code',
     html: html || `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Your OTP Code</h2>
@@ -55,3 +55,7 @@ export const sendOTPEmail = async (email, otp, subject = null, html = null) => {
 };
 
 export default transporter;
+
+
+
+

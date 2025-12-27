@@ -1,11 +1,11 @@
-# ElectroLead V1.0
+# VoltSupply V1.0
 
 B2B Electrical Marketplace Platform - Production Ready
 
 ## Project Structure
 
 ```
-ElectroLead/
+VoltSupply/
 ├── backend/          # Express.js API server
 ├── frontend/         # React + Vite SPA
 ├── database/         # PostgreSQL schema (to be added)
@@ -59,3 +59,7 @@ npm run dev
 ✅ PostgreSQL connection configured
 ✅ React + Vite setup with Bootstrap 5
 ⏳ Business logic implementation (pending)
+
+
+
+

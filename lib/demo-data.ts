@@ -1,4 +1,4 @@
-// Demo Data for ElectroLead B2B Platform Testing
+// Demo Data for VoltSupply B2B Platform Testing
 
 export interface DemoUser {
   id: string;

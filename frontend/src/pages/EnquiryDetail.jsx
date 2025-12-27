@@ -122,3 +122,6 @@ export default function EnquiryDetail() {
     </Layout>
   );
 }
+
+
+

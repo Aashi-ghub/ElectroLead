@@ -1,6 +1,6 @@
-# ElectroLead Backend
+# VoltSupply Backend
 
-Express.js backend server for ElectroLead B2B Platform.
+Express.js backend server for VoltSupply B2B Platform.
 
 ## Setup
 
@@ -38,3 +38,7 @@ backend/
 ├── server.js        # Main server file
 └── package.json     # Dependencies
 ```
+
+
+
+

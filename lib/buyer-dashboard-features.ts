@@ -1,5 +1,5 @@
 // Buyer Dashboard Features and Functions
-// ElectroLead B2B Platform
+// VoltSupply B2B Platform
 
 export interface BuyerDashboardFeatures {
   dashboardHome: {

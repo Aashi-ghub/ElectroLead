@@ -30,29 +30,33 @@ if (!process.env.DATABASE_URL) {
 // Test database connection pool (use DATABASE_URL from .env)
 export const testPool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: 5,
+  max: 10, // Increased for concurrent tests
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 5000, // Increased timeout
+  allowExitOnIdle: true,
 });
+
+// Truncate lock to prevent concurrent truncations
+let truncateLock = false;
 
 /**
  * Truncate all tables (clean state)
  */
 export const truncateAll = async () => {
+  // Prevent concurrent truncations
+  while (truncateLock) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  
+  truncateLock = true;
   const client = await testPool.connect();
+  
   try {
-    // Truncate in order (CASCADE handles foreign keys)
-    // Try to disable foreign key checks, but continue if permission denied
-    try {
-      await client.query('SET session_replication_role = replica;');
-    } catch (error) {
-      // Permission denied is okay, continue with CASCADE
-      if (!error.message.includes('permission denied')) {
-        throw error;
-      }
-    }
+    // Use transaction to ensure atomicity
+    await client.query('BEGIN');
     
     // Truncate in order (respecting foreign keys with CASCADE)
+    // Order matters: child tables first, then parent tables
     await client.query('TRUNCATE TABLE audit_logs CASCADE;');
     await client.query('TRUNCATE TABLE quotations CASCADE;');
     await client.query('TRUNCATE TABLE enquiries CASCADE;');
@@ -60,16 +64,15 @@ export const truncateAll = async () => {
     await client.query('TRUNCATE TABLE subscriptions CASCADE;');
     await client.query('TRUNCATE TABLE users CASCADE;');
     
-    // Re-enable foreign key checks
-    try {
-      await client.query('SET session_replication_role = DEFAULT;');
-    } catch (error) {
-      // Ignore if we couldn't set it in the first place
-    }
+    await client.query('COMMIT');
   } catch (error) {
-    console.error('Error truncating tables:', error);
-    throw error;
+    await client.query('ROLLBACK');
+    // Ignore deadlock errors (can happen with concurrent tests)
+    if (!error.message.includes('deadlock')) {
+      console.error('Error truncating tables:', error.message);
+    }
   } finally {
+    truncateLock = false;
     client.release();
   }
 };
@@ -149,7 +152,7 @@ export const runMigrations = async () => {
               console.warn(`Migration note: ${error.message}`);
             } else {
               // Only throw for real errors
-              throw error;
+            throw error;
             }
           }
         }

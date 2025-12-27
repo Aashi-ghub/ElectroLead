@@ -2,25 +2,41 @@ import { describe, it, expect, beforeEach, beforeAll, jest } from '@jest/globals
 import { truncateAll } from './helpers/db.js';
 import { createTestBuyer, createTestSeller } from './helpers/auth.js';
 import { createTestEnquiry, createTestQuotation } from './helpers/factories.js';
+import request from 'supertest';
+import { createTestApp } from './helpers/app.js';
+import { getAuthHeader } from './helpers/auth.js';
+
+let app;
+beforeAll(async () => {
+  app = await createTestApp();
+});
 
 describe('Email Notification Tests', () => {
   beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 50));
     await truncateAll();
+    await new Promise(resolve => setTimeout(resolve, 50));
   });
 
   describe('New Enquiry Notifications', () => {
     it('should send email to sellers on new enquiry (structure test)', async () => {
       // This test verifies the notification flow structure
       // Actual email sending requires SMTP configuration
-      const { user: buyer } = await createTestBuyer();
-      const { user: seller } = await createTestSeller({ city: 'Mumbai' });
+      const { user: buyer, token } = await createTestBuyer();
       
-      // Create enquiry - should trigger notification
-      const enquiry = await createTestEnquiry(buyer.id, { city: 'Mumbai' });
+      // Create enquiry via API - should trigger notification
+      const response = await request(app)
+        .post('/api/enquiries')
+        .set(getAuthHeader(token))
+        .send({
+          title: 'Test Enquiry',
+          city: 'Mumbai',
+          description: 'Test description',
+        });
 
-      // Verify enquiry was created
-      expect(enquiry).toBeDefined();
-      expect(enquiry.city).toBe('Mumbai');
+      // Verify enquiry was created (even if email fails)
+      expect(response.status).toBe(201);
+      expect(response.body.enquiry).toBeDefined();
 
       // In real scenario, notification would be sent
       // This test verifies the structure doesn't break
@@ -28,42 +44,61 @@ describe('Email Notification Tests', () => {
 
     it('should not fail enquiry creation if email fails', async () => {
       // This test verifies that email failures don't break main flow
-      const { user: buyer } = await createTestBuyer();
+      const { user: buyer, token } = await createTestBuyer();
       
-      // Create enquiry - even if email fails, enquiry should be created
-      const enquiry = await createTestEnquiry(buyer.id);
+      // Create enquiry via API - even if email fails, enquiry should be created
+      const response = await request(app)
+        .post('/api/enquiries')
+        .set(getAuthHeader(token))
+        .send({
+          title: 'Test Enquiry',
+          city: 'Mumbai',
+        });
 
-      expect(enquiry).toBeDefined();
-      expect(enquiry.id).toBeDefined();
+      expect(response.status).toBe(201);
+      expect(response.body.enquiry).toBeDefined();
+      expect(response.body.enquiry.id).toBeDefined();
     });
   });
 
   describe('New Quotation Notifications', () => {
     it('should send email to buyer on new quotation (structure test)', async () => {
       const { user: buyer } = await createTestBuyer();
-      const { user: seller } = await createTestSeller();
+      const { user: seller, token } = await createTestSeller();
       const enquiry = await createTestEnquiry(buyer.id);
+      const { createTestSubscription } = await import('./helpers/factories.js');
+      await createTestSubscription(seller.id);
 
-      // Create quotation - should trigger notification to buyer
-      const quotation = await createTestQuotation(enquiry.id, seller.id);
+      // Create quotation via API - should trigger notification to buyer
+      const response = await request(app)
+        .post(`/api/enquiries/${enquiry.id}/quote`)
+        .set(getAuthHeader(token))
+        .send({ total_price: 25000 });
 
-      expect(quotation).toBeDefined();
-      expect(quotation.enquiry_id).toBe(enquiry.id);
-      expect(quotation.seller_id).toBe(seller.id);
+      expect(response.status).toBe(201);
+      expect(response.body.quotation).toBeDefined();
+      expect(response.body.quotation.enquiry_id).toBe(enquiry.id);
+      expect(response.body.quotation.seller_id).toBe(seller.id);
 
       // In real scenario, email would be sent to buyer
     });
 
     it('should not fail quotation creation if email fails', async () => {
       const { user: buyer } = await createTestBuyer();
-      const { user: seller } = await createTestSeller();
+      const { user: seller, token } = await createTestSeller();
       const enquiry = await createTestEnquiry(buyer.id);
+      const { createTestSubscription } = await import('./helpers/factories.js');
+      await createTestSubscription(seller.id);
 
-      // Create quotation - even if email fails, quotation should be created
-      const quotation = await createTestQuotation(enquiry.id, seller.id);
+      // Create quotation via API - even if email fails, quotation should be created
+      const response = await request(app)
+        .post(`/api/enquiries/${enquiry.id}/quote`)
+        .set(getAuthHeader(token))
+        .send({ total_price: 25000 });
 
-      expect(quotation).toBeDefined();
-      expect(quotation.id).toBeDefined();
+      expect(response.status).toBe(201);
+      expect(response.body.quotation).toBeDefined();
+      expect(response.body.quotation.id).toBeDefined();
     });
   });
 

@@ -8,3 +8,6 @@ const router = express.Router();
 router.get('/', authenticate, requireRole('seller'), getAvailableEnquiries);
 
 export default router;
+
+
+

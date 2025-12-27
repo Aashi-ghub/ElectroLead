@@ -9,8 +9,8 @@ export default function KYCStatusPage() {
   const router = useRouter()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 sm:p-12 text-center">
+    <div className="min-h-screen bg-[var(--isabella)] flex items-center justify-center p-4">
+      <Card className="w-full max-w-md p-8 sm:p-12 text-center border border-border rounded-[14px] bg-[var(--surface-panel)] shadow-none">
         <div className="mb-6">
           <Clock className="mx-auto mb-4 text-accent" size={48} />
           <h1 className="text-2xl font-bold mb-2">Verification in Progress</h1>

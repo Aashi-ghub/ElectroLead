@@ -13,7 +13,9 @@ beforeAll(async () => {
 
 describe('Subscription & Payment Tests', () => {
   beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 50));
     await truncateAll();
+    await new Promise(resolve => setTimeout(resolve, 50));
   });
 
   describe('Free Seller Enquiry Visibility', () => {
@@ -67,7 +69,7 @@ describe('Subscription & Payment Tests', () => {
       if (response.status === 200) {
         response.body.enquiries.forEach((enquiry) => {
           expect(enquiry.city).toBe('Mumbai');
-        });
+    });
       }
     });
   });
@@ -75,7 +77,11 @@ describe('Subscription & Payment Tests', () => {
   describe('Free Seller Quote Submission Limit', () => {
     it('should enforce 3 quotations per month for free sellers', async () => {
       const { user: buyer } = await createTestBuyer();
-      const { user: seller, token } = await createTestSeller();
+      const { user: seller, token } = await createTestSeller({ city: 'Mumbai' });
+      
+      // Ensure no subscription (free tier)
+      const { testPool } = await import('./helpers/db.js');
+      await testPool.query('DELETE FROM subscriptions WHERE user_id = $1', [seller.id]);
       
       // Create 4 enquiries
       const enquiries = [];
@@ -85,12 +91,13 @@ describe('Subscription & Payment Tests', () => {
 
       // Submit 3 quotations (should succeed)
       for (let i = 0; i < 3; i++) {
-        const response = await request(app)
+      const response = await request(app)
           .post(`/api/enquiries/${enquiries[i].id}/quote`)
           .set(getAuthHeader(token))
           .send({ total_price: 10000 + i * 1000 });
 
         expect(response.status).toBe(201);
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
       // 4th quotation should be blocked
@@ -107,18 +114,27 @@ describe('Subscription & Payment Tests', () => {
 
     it('should allow free seller unlimited quotations with subscription', async () => {
       const { user: buyer } = await createTestBuyer();
-      const { user: seller, token } = await createTestSeller();
+      const { user: seller, token } = await createTestSeller({ city: 'Mumbai' });
       
-      // Create subscription
-      await createTestSubscription(seller.id, { plan_type: 'local' });
+      // Create subscription with future end date
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 30);
+      await createTestSubscription(seller.id, { 
+        plan_type: 'local',
+        status: 'active',
+        end_date: futureDate
+      });
       
-      // Create 5 enquiries
+      // Wait for subscription
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Create 5 enquiries in seller's city
       const enquiries = [];
       for (let i = 0; i < 5; i++) {
         enquiries.push(await createTestEnquiry(buyer.id, { city: 'Mumbai' }));
       }
 
-      // Submit all 5 quotations (should all succeed)
+      // Submit all 5 quotations (should all succeed with subscription)
       for (let i = 0; i < 5; i++) {
         const response = await request(app)
           .post(`/api/enquiries/${enquiries[i].id}/quote`)
@@ -126,6 +142,7 @@ describe('Subscription & Payment Tests', () => {
           .send({ total_price: 10000 + i * 1000 });
 
         expect(response.status).toBe(201);
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
     });
   });
@@ -164,7 +181,7 @@ describe('Subscription & Payment Tests', () => {
 
       // Mock Razorpay responses
       const mockRazorpay = setupRazorpayMock();
-      
+
       // Create order
       const orderResponse = await request(app)
         .post('/api/subscriptions/create-order')
@@ -192,6 +209,7 @@ describe('Subscription & Payment Tests', () => {
 
       // This would require mocking Razorpay to return non-captured status
       // For now, we test the endpoint structure
+      // Note: Razorpay will fail with test credentials, but we test the flow
       const response = await request(app)
         .post('/api/subscriptions/verify')
         .set(getAuthHeader(token))
@@ -201,7 +219,7 @@ describe('Subscription & Payment Tests', () => {
           plan_type: 'local',
         });
 
-      // Should validate payment status
+      // Should validate payment status (400 = validation, 500 = Razorpay error)
       expect([200, 400, 500]).toContain(response.status);
     });
   });
@@ -211,7 +229,7 @@ describe('Subscription & Payment Tests', () => {
       const { user: buyer } = await createTestBuyer();
       const { user: seller, token } = await createTestSeller();
       const enquiry = await createTestEnquiry(buyer.id);
-
+      
       // Create expired subscription
       const expiredDate = new Date();
       expiredDate.setDate(expiredDate.getDate() - 1);
@@ -254,7 +272,7 @@ describe('Subscription & Payment Tests', () => {
     it('should enforce subscription scope (local plan)', async () => {
       const { user: buyer } = await createTestBuyer();
       const { user: seller, token } = await createTestSeller({ city: 'Mumbai' });
-      
+
       await createTestSubscription(seller.id, { plan_type: 'local' });
 
       // Create enquiries in different cities
@@ -280,7 +298,7 @@ describe('Subscription & Payment Tests', () => {
         city: 'Mumbai', 
         state: 'Maharashtra' 
       });
-      
+
       await createTestSubscription(seller.id, { plan_type: 'state' });
 
       // Create enquiries in different states
@@ -296,14 +314,14 @@ describe('Subscription & Payment Tests', () => {
       if (response.body.enquiries.length > 0) {
         response.body.enquiries.forEach((enquiry) => {
           expect(enquiry.state).toBe('Maharashtra');
-        });
+    });
       }
     });
 
     it('should allow national plan to see all enquiries', async () => {
       const { user: buyer } = await createTestBuyer();
       const { user: seller, token } = await createTestSeller();
-      
+
       await createTestSubscription(seller.id, { plan_type: 'national' });
 
       await createTestEnquiry(buyer.id, { city: 'Mumbai', state: 'Maharashtra' });

@@ -5,6 +5,12 @@ import { createTestUser } from './auth.js';
  * Create a test enquiry
  */
 export const createTestEnquiry = async (buyerId, enquiryData = {}) => {
+  // Verify buyer exists
+  const buyerCheck = await testPool.query('SELECT id FROM users WHERE id = $1', [buyerId]);
+  if (buyerCheck.rows.length === 0) {
+    throw new Error(`Buyer with id ${buyerId} does not exist`);
+  }
+
   const {
     title = 'Test Enquiry',
     description = 'Test description',
@@ -29,6 +35,17 @@ export const createTestEnquiry = async (buyerId, enquiryData = {}) => {
  * Create a test quotation
  */
 export const createTestQuotation = async (enquiryId, sellerId, quotationData = {}) => {
+  // Verify enquiry and seller exist
+  const enquiryCheck = await testPool.query('SELECT id FROM enquiries WHERE id = $1', [enquiryId]);
+  if (enquiryCheck.rows.length === 0) {
+    throw new Error(`Enquiry with id ${enquiryId} does not exist`);
+  }
+  
+  const sellerCheck = await testPool.query('SELECT id FROM users WHERE id = $1', [sellerId]);
+  if (sellerCheck.rows.length === 0) {
+    throw new Error(`Seller with id ${sellerId} does not exist`);
+  }
+
   const {
     total_price = 30000,
     delivery_days = 30,

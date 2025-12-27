@@ -32,82 +32,106 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-      <div className="absolute bottom-0 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-
-      <div className="relative w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-block px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-semibold mb-4">
-            Welcome Back
+    <div className="min-h-screen bg-[var(--isabella)]">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-[1.1fr,1fr] min-h-screen items-center px-4 sm:px-8 py-12 gap-6">
+        <div className="bg-[var(--jet-black)] text-primary-foreground rounded-[12px] md:rounded-[16px] p-8 sm:p-12 flex flex-col gap-12 border border-border">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-[8px] border border-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm tracking-tight">EL</span>
+            </div>
+            <p className="text-sm uppercase tracking-[0.12em] text-primary-foreground/70">Access Control</p>
           </div>
-          <h1 className="text-4xl font-bold text-primary mb-2">Sign In</h1>
-          <p className="text-foreground/60">Access your ElectroLead account</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5 bg-white p-8 rounded-lg border border-border">
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="your@email.com"
-              className="w-full px-4 py-2.5 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all bg-input"
-              required
-            />
+          <div className="space-y-4">
+            <h1 className="text-4xl font-semibold leading-tight">Sign in to your control room.</h1>
+            <p className="text-primary-foreground/70 text-base max-w-xl">
+              Built for industrial buyers and suppliers. Direct threads, quote trails, and compliance-ready records in
+              one place.
+            </p>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Password</label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                className="w-full px-4 py-2.5 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all bg-input"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/60 hover:text-foreground transition-colors"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+          <div className="grid grid-cols-2 gap-4 text-sm text-primary-foreground/80">
+            <div className="border border-white/10 rounded-[10px] p-4">
+              <p className="text-xs uppercase tracking-[0.08em] text-primary-foreground/50 mb-1">Availability</p>
+              <p className="font-medium">99.9% uptime</p>
+            </div>
+            <div className="border border-white/10 rounded-[10px] p-4">
+              <p className="text-xs uppercase tracking-[0.08em] text-primary-foreground/50 mb-1">Response speed</p>
+              <p className="font-medium">≈2h supplier avg</p>
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="rememberMe"
-                checked={formData.rememberMe}
-                onChange={handleChange}
-                className="w-4 h-4 rounded border-border cursor-pointer"
-              />
-              <span className="text-sm text-foreground/70">Remember me</span>
-            </label>
-            <Link href="#" className="text-sm text-primary hover:text-primary/80 font-medium transition-colors">
-              Forgot Password?
-            </Link>
+        <div className="bg-[var(--surface-panel)] border border-border rounded-[12px] md:rounded-[16px] p-6 sm:p-8 shadow-none">
+          <div className="mb-6">
+            <p className="text-xs uppercase tracking-[0.08em] text-foreground/60">Welcome back</p>
+            <h2 className="text-3xl font-semibold mt-2">Sign in</h2>
           </div>
 
-          <button type="submit" className="btn-primary w-full flex items-center justify-center gap-2">
-            Sign In <ArrowRight size={16} />
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="your@email.com"
+                className="w-full px-4 py-3 border border-border rounded-[8px] bg-input focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                required
+              />
+            </div>
 
-        <p className="text-center text-foreground/60 mt-6">
-          Don't have an account?{" "}
-          <Link href="/auth/register" className="text-primary hover:text-primary/80 font-semibold transition-colors">
-            Join Now
-          </Link>
-        </p>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  className="w-full px-4 py-3 border border-border rounded-[8px] bg-input focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/60 hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="rememberMe"
+                  checked={formData.rememberMe}
+                  onChange={handleChange}
+                  className="w-4 h-4 rounded border-border cursor-pointer"
+                />
+                <span className="text-sm text-foreground/70">Remember me</span>
+              </label>
+              <Link href="#" className="text-sm text-primary hover:text-primary/80 font-medium transition-colors">
+                Forgot password?
+              </Link>
+            </div>
+
+            <div className="flex justify-center">
+              <button type="submit" className="btn-primary flex items-center justify-center gap-2 px-4">
+                Sign In <ArrowRight size={16} />
+              </button>
+            </div>
+          </form>
+
+          <p className="text-center text-foreground/60 mt-6">
+            Don't have an account?{" "}
+            <Link href="/auth/register" className="text-primary hover:text-primary/80 font-semibold transition-colors">
+              Join Now
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

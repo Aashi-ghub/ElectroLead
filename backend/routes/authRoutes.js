@@ -12,3 +12,6 @@ router.post('/verify-otp', otpLimiter, validate(schemas.verifyOtp), verifyOtp);
 router.post('/reset-password', otpLimiter, validate(schemas.resetPassword), resetPassword);
 
 export default router;
+
+
+

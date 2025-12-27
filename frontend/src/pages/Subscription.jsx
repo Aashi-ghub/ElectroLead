@@ -35,7 +35,7 @@ export default function Subscription() {
           amount: orderResponse.data.amount,
           currency: orderResponse.data.currency,
           order_id: order_id,
-          name: 'ElectroLead',
+          name: 'VoltSupply',
           description: `Subscription - ${plans[planType].name}`,
           handler: async (response) => {
             try {
@@ -113,3 +113,7 @@ export default function Subscription() {
     </Layout>
   );
 }
+
+
+
+

@@ -53,8 +53,8 @@ export default function SellerRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl p-8 sm:p-12">
+    <div className="min-h-screen bg-[var(--isabella)] flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl p-8 sm:p-12 border border-border rounded-[14px] bg-[var(--surface-panel)] shadow-none">
         <button
           onClick={() => router.back()}
           className="flex items-center gap-2 text-foreground/60 hover:text-foreground mb-8 transition-colors"
@@ -63,7 +63,8 @@ export default function SellerRegisterPage() {
         </button>
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Create Seller Account</h1>
+          <p className="text-xs uppercase tracking-[0.08em] text-foreground/60 mb-2">Seller onboarding</p>
+          <h1 className="text-3xl font-semibold mb-2">Create Seller Account</h1>
           <p className="text-foreground/60">Set up your business profile to start receiving leads</p>
         </div>
 

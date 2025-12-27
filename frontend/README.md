@@ -1,6 +1,6 @@
-# ElectroLead Frontend
+# VoltSupply Frontend
 
-React + Vite frontend for ElectroLead B2B Platform.
+React + Vite frontend for VoltSupply B2B Platform.
 
 ## Setup
 
@@ -48,3 +48,7 @@ frontend/
 - Bootstrap 5
 - React Router DOM
 - Axios
+
+
+
+

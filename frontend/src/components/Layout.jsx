@@ -39,7 +39,7 @@ export default function Layout({ children, user, logout }) {
     <div className="d-flex" style={{ minHeight: '100vh' }}>
       <nav className="bg-primary text-white" style={{ width: '250px', minHeight: '100vh' }}>
         <div className="p-3">
-          <h4 className="text-white mb-4">ElectroLead</h4>
+          <h4 className="text-white mb-4">VoltSupply</h4>
           <ul className="nav flex-column">
             {menu.map((item) => (
               <li key={item.path} className="nav-item mb-2">
@@ -97,3 +97,7 @@ export default function Layout({ children, user, logout }) {
     </div>
   );
 }
+
+
+
+

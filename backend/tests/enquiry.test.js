@@ -12,7 +12,9 @@ beforeAll(async () => {
 
 describe('Enquiry API Tests (Buyer)', () => {
   beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 50));
     await truncateAll();
+    await new Promise(resolve => setTimeout(resolve, 50));
   });
 
   describe('Create Enquiry', () => {
@@ -114,7 +116,7 @@ describe('Enquiry API Tests (Buyer)', () => {
       expect(response.body.enquiries.length).toBe(2);
       response.body.enquiries.forEach((enquiry) => {
         expect(enquiry.buyer_id || enquiry.title).toBeDefined();
-      });
+    });
     });
 
     it('should enforce pagination limits (max 20)', async () => {

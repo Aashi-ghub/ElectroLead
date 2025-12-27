@@ -12,19 +12,19 @@ interface StatCardProps {
 
 function StatCard({ icon, label, value, change, trend }: StatCardProps) {
   return (
-    <Card className="rounded-2xl">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium text-foreground/70">{label}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="flex items-baseline justify-between">
-          <span className="text-3xl font-bold">{value}</span>
-          <div className={`flex items-center gap-1 text-sm ${trend === "up" ? "text-green-600" : "text-red-600"}`}>
-            <TrendingUp size={16} className={trend === "down" ? "rotate-180" : ""} />
-            {change}
-          </div>
+    <Card className="rounded-lg border border-border bg-[var(--isabella)]">
+      <CardHeader className="pb-3 flex flex-row items-center justify-between">
+        <CardTitle className="text-xs uppercase tracking-[0.08em] text-foreground/60">{label}</CardTitle>
+        <div className={`flex items-center gap-1 text-xs ${trend === "up" ? "text-[var(--reseda-green)]" : "text-red-600"}`}>
+          <TrendingUp size={14} className={trend === "down" ? "rotate-180" : ""} />
+          {change}
         </div>
-        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">{icon}</div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <span className="text-3xl font-semibold tracking-tight block">{value}</span>
+        <div className="w-12 h-12 bg-primary/10 border border-border rounded-[10px] flex items-center justify-center text-primary">
+          {icon}
+        </div>
       </CardContent>
     </Card>
   )

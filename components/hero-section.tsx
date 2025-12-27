@@ -21,7 +21,7 @@ export function HeroSection() {
             </h1>
 
             <p className="text-lg text-foreground/70 text-balance leading-relaxed">
-              ElectroLead is the B2B marketplace connecting buyers and suppliers in the electrical industry. Find
+              VoltSupply is the B2B marketplace connecting buyers and suppliers in the electrical industry. Find
               quality products, competitive pricing, and reliable partners.
             </p>
 

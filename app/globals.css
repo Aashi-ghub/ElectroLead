@@ -4,79 +4,86 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Modern design system: dark navy primary, cyan accents, clean white backgrounds */
-  --background: #ffffff;
-  --foreground: #0f1419;
-  --card: #f8f9fa;
-  --card-foreground: #0f1419;
+  /* Industrial electrical palette */
+  --background: #f7f7f5;
+  --foreground: #111111;
+  --card: #ffffff;
+  --card-foreground: #111111;
   --popover: #ffffff;
-  --popover-foreground: #0f1419;
-  --primary: #0f2942;
-  --primary-foreground: #ffffff;
-  --secondary: #1a3a52;
-  --secondary-foreground: #ffffff;
-  --muted: #e8ecf1;
-  --muted-foreground: #6b7280;
-  --accent: #00d9ff;
-  --accent-foreground: #0f2942;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
-  --input: #f3f4f6;
-  --ring: #00d9ff;
-  --chart-1: #0f2942;
-  --chart-2: #00d9ff;
-  --chart-3: #1a3a52;
-  --chart-4: #0f2942;
-  --chart-5: #00d9ff;
-  --radius: 0.375rem;
-  --sidebar: #0f2942;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #00d9ff;
-  --sidebar-primary-foreground: #0f2942;
-  --sidebar-accent: #00d9ff;
-  --sidebar-accent-foreground: #0f2942;
-  --sidebar-border: #1a3a52;
-  --sidebar-ring: #00d9ff;
+  --popover-foreground: #111111;
+  --primary: #f06400;
+  --primary-foreground: #f7f7f5;
+  --secondary: #1e1e1e;
+  --secondary-foreground: #f7f7f5;
+  --muted: #ededeb;
+  --muted-foreground: #4b4b4b;
+  --accent: #f06400;
+  --accent-foreground: #1c1c1c;
+  --destructive: #b3261e;
+  --destructive-foreground: #f7f7f5;
+  --border: #e3e3e0;
+  --input: #ffffff;
+  --ring: #f06400;
+  --jet-black: #2d2d2d;
+  --reseda-green: #646e57;
+  --isabella: #f0f0ec;
+  --surface-base: var(--isabella);
+  --surface-panel: #ffffff;
+  --surface-contrast: var(--isabella);
+  --surface-strong: var(--jet-black);
+  --chart-1: #f06400;
+  --chart-2: #1e1e1e;
+  --chart-3: #7d826e;
+  --chart-4: #f0f0ec;
+  --chart-5: #4b4b4b;
+  --radius: 0.35rem;
+  --sidebar: #1c1c1c;
+  --sidebar-foreground: #f7f7f5;
+  --sidebar-primary: #f06400;
+  --sidebar-primary-foreground: #1c1c1c;
+  --sidebar-accent: #f06400;
+  --sidebar-accent-foreground: #1c1c1c;
+  --sidebar-border: #2d2d2d;
+  --sidebar-ring: #f06400;
 }
 
 .dark {
-  --background: #0a0e14;
-  --foreground: #f0f4f8;
-  --card: #0f1419;
-  --card-foreground: #f0f4f8;
-  --popover: #0f1419;
-  --popover-foreground: #f0f4f8;
-  --primary: #00d9ff;
-  --primary-foreground: #0f2942;
-  --secondary: #1a3a52;
-  --secondary-foreground: #f0f4f8;
-  --muted: #1a3a52;
-  --muted-foreground: #9ca3af;
-  --accent: #00d9ff;
-  --accent-foreground: #0f2942;
-  --destructive: #f87171;
-  --destructive-foreground: #0a0e14;
-  --border: #1a3a52;
-  --input: #0f1419;
-  --ring: #00d9ff;
-  --chart-1: #00d9ff;
-  --chart-2: #1a3a52;
-  --chart-3: #0f2942;
-  --chart-4: #00d9ff;
-  --chart-5: #1a3a52;
-  --sidebar: #0f2942;
-  --sidebar-foreground: #f0f4f8;
-  --sidebar-primary: #00d9ff;
-  --sidebar-primary-foreground: #0f2942;
-  --sidebar-accent: #00d9ff;
-  --sidebar-accent-foreground: #0f2942;
-  --sidebar-border: #1a3a52;
-  --sidebar-ring: #00d9ff;
+  --background: #1c1c1c;
+  --foreground: #f7f7f5;
+  --card: #1e1e1e;
+  --card-foreground: #f7f7f5;
+  --popover: #1e1e1e;
+  --popover-foreground: #f7f7f5;
+  --primary: #f06400;
+  --primary-foreground: #1c1c1c;
+  --secondary: #2d2d2d;
+  --secondary-foreground: #f7f7f5;
+  --muted: #2a2a28;
+  --muted-foreground: #d8d8d4;
+  --accent: #f06400;
+  --accent-foreground: #1c1c1c;
+  --destructive: #ff675c;
+  --destructive-foreground: #1c1c1c;
+  --border: #2d2d2d;
+  --input: #1e1e1e;
+  --ring: #f06400;
+  --chart-1: #f06400;
+  --chart-2: #7d826e;
+  --chart-3: #2d2d2d;
+  --chart-4: #f0f0ec;
+  --chart-5: #4b4b4b;
+  --sidebar: #1c1c1c;
+  --sidebar-foreground: #f7f7f5;
+  --sidebar-primary: #f06400;
+  --sidebar-primary-foreground: #1c1c1c;
+  --sidebar-accent: #f06400;
+  --sidebar-accent-foreground: #1c1c1c;
+  --sidebar-border: #2d2d2d;
+  --sidebar-ring: #f06400;
 }
 
 @theme inline {
-  --font-sans: "Inter", "Geist", "Geist Fallback";
+  --font-sans: "Space Grotesk", "Geist", "Geist Fallback";
   --font-mono: "JetBrains Mono", "Geist Mono", "Geist Mono Fallback";
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -97,6 +104,9 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-jet: var(--jet-black);
+  --color-reseda: var(--reseda-green);
+  --color-isabella: var(--isabella);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -118,24 +128,79 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/40;
   }
   body {
     @apply bg-background text-foreground;
+    letter-spacing: -0.01em;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply tracking-tight;
   }
 }
 
-/* Modern button styles - small, rounded, minimal */
 @layer components {
   .btn-primary {
-    @apply px-4 py-2 rounded-md bg-primary text-primary-foreground font-medium text-sm transition-all duration-200 hover:bg-primary/90 active:scale-95;
+    @apply px-4 py-2 bg-primary text-primary-foreground font-medium text-sm tracking-tight transition-colors duration-200 border border-primary shadow-none rounded-[6px] hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary;
   }
 
   .btn-accent {
-    @apply px-4 py-2 rounded-md bg-accent text-accent-foreground font-medium text-sm transition-all duration-200 hover:bg-accent/90 active:scale-95;
+    @apply px-4 py-2 bg-secondary text-secondary-foreground font-medium text-sm tracking-tight transition-colors duration-200 border border-secondary shadow-none rounded-[6px] hover:bg-secondary/90 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary;
   }
 
   .btn-outline {
-    @apply px-4 py-2 rounded-md border border-border bg-transparent text-foreground font-medium text-sm transition-all duration-200 hover:bg-muted active:scale-95;
+    @apply px-4 py-2 border border-border bg-transparent text-foreground font-medium text-sm tracking-tight rounded-[6px] transition-colors duration-200 hover:bg-muted focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary/60;
   }
 }
+
+@layer utilities {
+  .line-pattern {
+    background-image: linear-gradient(90deg, rgba(100, 110, 87, 0.08) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(100, 110, 87, 0.08) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee 22s linear infinite;
+  }
+
+  .underline-animate {
+    position: relative;
+  }
+
+  .underline-animate::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    background-color: var(--reseda-green);
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: center;
+    transition: transform 180ms ease;
+  }
+
+  .underline-animate:hover::after,
+  .underline-animate:focus-visible::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  /* Subtle caret blink to pair with typewriter placeholders */
+  input::placeholder {
+    transition: color 120ms ease;
+  }
+}
+

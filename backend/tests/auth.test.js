@@ -12,7 +12,9 @@ beforeAll(async () => {
 
 describe('Authentication & OTP Tests', () => {
   beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 50));
     await truncateAll();
+    await new Promise(resolve => setTimeout(resolve, 50));
   });
 
   describe('User Registration', () => {
@@ -112,7 +114,7 @@ describe('Authentication & OTP Tests', () => {
       const { testPool } = await import('./helpers/db.js');
       const email = 'hashtest@example.com';
       
-      await request(app)
+      const response = await request(app)
         .post('/api/register')
         .send({
           email,
@@ -121,14 +123,21 @@ describe('Authentication & OTP Tests', () => {
           role: 'buyer',
         });
 
+      expect(response.status).toBe(201);
+
+      // Wait a bit for DB to be consistent
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const result = await testPool.query(
         'SELECT password_hash FROM users WHERE email = $1',
         [email]
       );
 
+      expect(result.rows.length).toBeGreaterThan(0);
       const storedHash = result.rows[0].password_hash;
-      const isValid = await bcrypt.compare('Test1234!', storedHash);
+      expect(storedHash).toBeDefined();
       
+      const isValid = await bcrypt.compare('Test1234!', storedHash);
       expect(isValid).toBe(true);
       // Verify it's bcrypt hash (starts with $2b$ or $2a$)
       expect(storedHash).toMatch(/^\$2[ab]\$/);
@@ -240,7 +249,7 @@ describe('Authentication & OTP Tests', () => {
     it('should prevent OTP reuse after successful verification', async () => {
       const { testPool } = await import('./helpers/db.js');
       const email = 'otpreuse@example.com';
-      
+
       await request(app)
         .post('/api/register')
         .send({
@@ -257,7 +266,7 @@ describe('Authentication & OTP Tests', () => {
         'SELECT otp_hash FROM users WHERE email = $1',
         [email]
       );
-      
+
       // Simulate OTP verification by manually clearing
       await testPool.query(
         'UPDATE users SET otp_hash = NULL, otp_expires_at = NULL WHERE email = $1',
@@ -318,10 +327,14 @@ describe('Authentication & OTP Tests', () => {
           role: 'buyer',
         });
 
+      // Wait for registration to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const initialResult = await testPool.query(
         'SELECT otp_attempts FROM users WHERE email = $1',
         [email]
       );
+      expect(initialResult.rows.length).toBeGreaterThan(0);
       expect(initialResult.rows[0].otp_attempts).toBe(0);
 
       await request(app)
@@ -331,17 +344,21 @@ describe('Authentication & OTP Tests', () => {
           otp: '000000',
         });
 
+      // Wait for update to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const afterResult = await testPool.query(
         'SELECT otp_attempts FROM users WHERE email = $1',
         [email]
       );
+      expect(afterResult.rows.length).toBeGreaterThan(0);
       expect(afterResult.rows[0].otp_attempts).toBe(1);
     });
   });
 
   describe('Login & JWT', () => {
     it('should login with valid credentials', async () => {
-      const { user, password } = await createTestUser({
+      const { user, password } = await createTestUser({ 
         email: 'login@example.com',
         password: 'Test1234!',
       });
@@ -360,7 +377,7 @@ describe('Authentication & OTP Tests', () => {
     });
 
     it('should reject login with invalid password', async () => {
-      await createTestUser({
+      await createTestUser({ 
         email: 'login2@example.com',
         password: 'Test1234!',
       });
@@ -420,7 +437,7 @@ describe('Authentication & OTP Tests', () => {
 
       expect(response.status).toBe(200);
       const token = response.body.token;
-      
+
       // Verify JWT structure
       expect(token).toMatch(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
       
@@ -435,17 +452,26 @@ describe('Authentication & OTP Tests', () => {
     it('should reset password with valid OTP', async () => {
       const { testPool } = await import('./helpers/db.js');
       const email = 'reset@example.com';
-      
-      await createTestUser({ email, password: 'OldPassword123!' });
+
+      // Create user through registration to ensure proper setup
+      await request(app)
+        .post('/api/register')
+        .send({
+          email,
+          password: 'OldPassword123!',
+          name: 'Test User',
+          role: 'buyer',
+        });
 
       // Generate OTP (simulate password reset request)
       const otpUtils = await import('../utils/otp.js');
       const otp = otpUtils.generateOTP();
       const otpHash = await otpUtils.hashOTP(otp);
-      await otpUtils.storeOTP(
-        (await testPool.query('SELECT id FROM users WHERE email = $1', [email])).rows[0].id,
-        otpHash
-      );
+      
+      const userResult = await testPool.query('SELECT id FROM users WHERE email = $1', [email]);
+      expect(userResult.rows.length).toBeGreaterThan(0);
+      
+      await otpUtils.storeOTP(userResult.rows[0].id, otpHash);
 
       const response = await request(app)
         .post('/api/reset-password')
@@ -457,6 +483,9 @@ describe('Authentication & OTP Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.message).toContain('successfully');
+
+      // Wait for DB consistency
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Verify new password works
       const loginResponse = await request(app)
@@ -473,17 +502,26 @@ describe('Authentication & OTP Tests', () => {
       const { testPool } = await import('./helpers/db.js');
       const email = 'resethash@example.com';
       
-      await createTestUser({ email });
+      // Create user through registration
+      await request(app)
+        .post('/api/register')
+        .send({
+          email,
+          password: 'OldPassword123!',
+          name: 'Test User',
+          role: 'buyer',
+        });
 
       const otpUtils = await import('../utils/otp.js');
       const otp = otpUtils.generateOTP();
       const otpHash = await otpUtils.hashOTP(otp);
-      await otpUtils.storeOTP(
-        (await testPool.query('SELECT id FROM users WHERE email = $1', [email])).rows[0].id,
-        otpHash
-      );
+      
+      const userResult = await testPool.query('SELECT id FROM users WHERE email = $1', [email]);
+      expect(userResult.rows.length).toBeGreaterThan(0);
+      
+      await otpUtils.storeOTP(userResult.rows[0].id, otpHash);
 
-      await request(app)
+      const response = await request(app)
         .post('/api/reset-password')
         .send({
           email,
@@ -491,12 +529,20 @@ describe('Authentication & OTP Tests', () => {
           new_password: 'NewPassword123!',
         });
 
+      expect(response.status).toBe(200);
+
+      // Wait for DB consistency
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const result = await testPool.query(
         'SELECT password_hash FROM users WHERE email = $1',
         [email]
       );
 
+      expect(result.rows.length).toBeGreaterThan(0);
       const storedHash = result.rows[0].password_hash;
+      expect(storedHash).toBeDefined();
+      
       const isValid = await bcrypt.compare('NewPassword123!', storedHash);
       expect(isValid).toBe(true);
     });

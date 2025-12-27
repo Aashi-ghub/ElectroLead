@@ -12,7 +12,9 @@ beforeAll(async () => {
 
 describe('Role & Authorization Tests', () => {
   beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 50));
     await truncateAll();
+    await new Promise(resolve => setTimeout(resolve, 50));
   });
 
   describe('Buyer Access Control', () => {
@@ -88,7 +90,7 @@ describe('Role & Authorization Tests', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('permissions');
-    });
+  });
 
     it('should block seller from creating enquiries', async () => {
       const { token } = await createTestSeller();
@@ -113,7 +115,7 @@ describe('Role & Authorization Tests', () => {
 
       expect(response.status).toBe(403);
     });
-  });
+    });
 
   describe('Admin Access Control', () => {
     it('should allow admin to access admin routes', async () => {
@@ -221,7 +223,7 @@ describe('Role & Authorization Tests', () => {
         .set({ Authorization: `Bearer ${expiredToken}` });
 
       expect(response.status).toBe(401);
-    });
+  });
 
     it('should reject token without Bearer prefix', async () => {
       const { token } = await createTestBuyer();

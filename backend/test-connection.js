@@ -39,3 +39,6 @@ pool.query('SELECT 1 as test')
     console.error('4. User has permissions');
     process.exit(1);
   });
+
+
+

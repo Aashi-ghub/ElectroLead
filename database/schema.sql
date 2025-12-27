@@ -1,5 +1,5 @@
 -- ============================================
--- ElectroLead V1.0 - PostgreSQL Schema
+-- VoltSupply V1.0 - PostgreSQL Schema
 -- Production Ready
 -- ============================================
 
@@ -173,3 +173,7 @@ CREATE TRIGGER update_quotations_updated_at
     BEFORE UPDATE ON quotations
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
+
+
+
+

@@ -13,3 +13,6 @@ router.put('/', validate(schemas.updateProfile), updateProfile);
 router.post('/upload-kyc', uploadKyc);
 
 export default router;
+
+
+

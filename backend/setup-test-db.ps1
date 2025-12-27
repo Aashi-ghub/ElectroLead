@@ -1,7 +1,7 @@
 # Setup Test Database Script
 # This script helps set up the test database connection
 
-Write-Host "=== ElectroLead Test Database Setup ===" -ForegroundColor Cyan
+Write-Host "=== VoltSupply Test Database Setup ===" -ForegroundColor Cyan
 Write-Host ""
 
 # Check if .env exists
@@ -68,3 +68,7 @@ Write-Host "1. Make sure the test database exists in PostgreSQL" -ForegroundColo
 Write-Host "2. Update TEST_DATABASE_URL in .env.test if needed" -ForegroundColor White
 Write-Host "3. Run: npm test" -ForegroundColor White
 Write-Host ""
+
+
+
+
