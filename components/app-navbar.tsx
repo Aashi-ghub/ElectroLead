@@ -46,7 +46,7 @@ function AppNavbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="font-semibold text-base tracking-tight text-primary-foreground">VoltSupply</span>
+            <span className="font-semibold text-base tracking-tight text-[var(--jet-black)]">VoltSupply</span>
           </Link>
 
           {/* Desktop Menu */}
