@@ -118,11 +118,9 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            <div className="flex justify-center">
-              <button type="submit" className="btn-primary flex items-center justify-center gap-2 px-4">
-                Sign In <ArrowRight size={16} />
-              </button>
-            </div>
+            <button type="submit" className="btn-primary w-full flex items-center justify-center gap-2">
+              Sign In <ArrowRight size={16} />
+            </button>
           </form>
 
           <p className="text-center text-foreground/60 mt-6">

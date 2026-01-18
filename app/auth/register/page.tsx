@@ -58,11 +58,9 @@ export default function RegisterPage() {
                 Track approvals and delivery
               </li>
             </ul>
-            <div className="mt-4 flex justify-center">
-              <span className="btn-primary inline-flex items-center justify-center gap-2">
-                Select Buyer <ArrowRight size={16} />
-              </span>
-            </div>
+            <button className="btn-primary w-full flex items-center justify-center gap-2">
+              Select Buyer <ArrowRight size={16} />
+            </button>
           </button>
 
           {/* Seller Card */}
@@ -91,11 +89,9 @@ export default function RegisterPage() {
                 Build reputation with on-time jobs
               </li>
             </ul>
-            <div className="mt-4 flex justify-center">
-              <span className="btn-outline inline-flex items-center justify-center gap-2">
-                Select Seller <ArrowRight size={16} />
-              </span>
-            </div>
+            <button className="btn-outline w-full flex items-center justify-center gap-2">
+              Select Seller <ArrowRight size={16} />
+            </button>
           </button>
         </div>
 
