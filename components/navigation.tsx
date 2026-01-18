@@ -42,7 +42,7 @@ export function Navigation() {
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <Link href="/auth/login">
-              <Button variant="ghost" size="sm" className="rounded-[6px] px-4 text-primary-foreground">
+              <Button variant="ghost" size="sm" className="rounded-[6px] px-4 text-[var(--jet-black)]">
                 Sign In
               </Button>
             </Link>
@@ -73,7 +73,7 @@ export function Navigation() {
             </Link>
             <div className="flex gap-2 pt-2">
               <Link href="/auth/login" className="flex-1">
-                <Button variant="ghost" size="sm" className="w-full rounded-[6px] text-primary-foreground">
+                <Button variant="ghost" size="sm" className="w-full rounded-[6px] text-[var(--jet-black)]">
                   Sign In
                 </Button>
               </Link>

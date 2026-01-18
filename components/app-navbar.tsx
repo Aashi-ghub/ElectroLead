@@ -104,7 +104,7 @@ function AppNavbar() {
               </div>
             ) : (
               <div className="hidden md:flex gap-2">
-                <Link href="/auth/login" className="btn-outline">
+                <Link href="/auth/login" className="btn-outline text-[var(--jet-black)]">
                   Login
                 </Link>
                 <Link href="/auth/register" className="btn-primary">
@@ -156,7 +156,7 @@ function AppNavbar() {
                   Pricing
                 </a>
                 <div className="flex gap-2 px-4 pt-2">
-                  <Link href="/auth/login" className="btn-outline flex-1 text-center">
+                  <Link href="/auth/login" className="btn-outline flex-1 text-center text-[var(--jet-black)]">
                     Login
                   </Link>
                   <Link href="/auth/register" className="btn-primary flex-1 text-center">
