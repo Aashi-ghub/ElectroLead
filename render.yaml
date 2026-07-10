@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: electrolead-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://electro-lead.vercel.app
+      - key: JWT_EXPIRY
+        value: 7d
+      - key: OTP_EXPIRY_MINUTES
+        value: "10"
+      - key: OTP_MAX_ATTEMPTS
+        value: "3"
+      - key: DB_POOL_MAX
+        value: "10"
+      - key: EMAIL_PROVIDER
+        value: gmail
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      # Secrets - Render prompts for these on first deploy, never committed here.
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
