@@ -11,8 +11,6 @@ import {
   Inbox,
   FileText,
   Plus,
-  MessageSquare,
-  Bookmark,
   Settings,
   LogOut,
   User,
@@ -37,20 +35,19 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
     router.push("/auth/login")
   }
 
+  // Messaging and saved-suppliers/buyers are non-goals for v1 (no backend
+  // support exists for either), so they're left out of navigation rather
+  // than linking to non-functional demo pages.
   const buyerMenuItems = [
     { label: "Dashboard", href: "/dashboard/buyer", icon: Home },
     { label: "My Enquiries", href: "/dashboard/buyer/enquiries", icon: FileText },
     { label: "Create Enquiry", href: "/dashboard/buyer/create-enquiry", icon: Plus },
-    { label: "Messages", href: "/messages", icon: MessageSquare },
-    { label: "Saved Suppliers", href: "/dashboard/buyer/saved", icon: Bookmark },
   ]
 
   const sellerMenuItems = [
     { label: "Dashboard", href: "/dashboard/seller", icon: Home },
     { label: "Available Leads", href: "/dashboard/seller/enquiries", icon: Inbox },
     { label: "My Quotes", href: "/dashboard/seller/quotes", icon: Send },
-    { label: "Messages", href: "/messages", icon: MessageSquare },
-    { label: "Saved Buyers", href: "/dashboard/seller/saved", icon: Bookmark },
   ]
 
   const menuItems = userRole === "buyer" ? buyerMenuItems : sellerMenuItems

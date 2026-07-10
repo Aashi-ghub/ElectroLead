@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { Menu, X, LogOut, User, MessageSquare, Home } from "lucide-react"
+import { Menu, X, LogOut, User, Home } from "lucide-react"
 import { useSession } from "@/hooks/use-session"
 
 function AppNavbar() {
@@ -59,13 +59,6 @@ function AppNavbar() {
                   className="text-sm text-foreground/70 hover:text-foreground transition-colors flex items-center gap-2"
                 >
                   <span>Dashboard</span>
-                </Link>
-                <Link
-                  href="/messages"
-                  className="text-sm text-foreground/70 hover:text-foreground transition-colors flex items-center gap-2"
-                >
-                  <MessageSquare size={16} />
-                  Messages
                 </Link>
               </>
             ) : (
@@ -127,9 +120,6 @@ function AppNavbar() {
                   className="block px-4 py-2 text-sm hover:bg-muted rounded-md transition-colors"
                 >
                   Dashboard
-                </Link>
-                <Link href="/messages" className="block px-4 py-2 text-sm hover:bg-muted rounded-md transition-colors">
-                  Messages
                 </Link>
                 <button
                   onClick={handleLogout}

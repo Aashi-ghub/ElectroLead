@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation"
 const NAV_ITEMS = [
   { label: "Pending KYC", href: "/admin/kyc" },
   { label: "Users", href: "/admin/users" },
+  { label: "Enquiries", href: "/admin/enquiries" },
   { label: "Subscriptions", href: "/admin/subscriptions" },
 ]
 
