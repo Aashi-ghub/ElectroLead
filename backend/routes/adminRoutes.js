@@ -1,5 +1,5 @@
 import express from 'express';
-import { getUsers, approveKyc, getAdminEnquiries, suspendUser, getSubscriptions } from '../controllers/adminController.js';
+import { getUsers, approveKyc, getAdminEnquiries, suspendUser, getSubscriptions, getUserDocuments } from '../controllers/adminController.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -8,6 +8,7 @@ const router = express.Router();
 router.use(authenticate, requireRole('admin'));
 
 router.get('/users', getUsers);
+router.get('/users/:id/documents', getUserDocuments);
 router.post('/users/:id/approve-kyc', approveKyc);
 router.get('/enquiries', getAdminEnquiries);
 router.post('/users/:id/suspend', suspendUser);

@@ -136,6 +136,47 @@ export const getMyQuotations = async (req, res) => {
   }
 };
 
+// POST /api/quotations/:id/accept (Buyer only - must own the enquiry)
+export const acceptQuotation = async (req, res) => {
+  try {
+    const { id: quotationId } = req.params;
+
+    const quotationResult = await pool.query(
+      `SELECT q.id, q.enquiry_id, q.status, e.buyer_id, e.status as enquiry_status
+       FROM quotations q
+       JOIN enquiries e ON q.enquiry_id = e.id
+       WHERE q.id = $1`,
+      [quotationId]
+    );
+
+    if (quotationResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Quotation not found' });
+    }
+
+    const quotation = quotationResult.rows[0];
+
+    if (quotation.buyer_id !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    if (quotation.enquiry_status !== 'open') {
+      return res.status(400).json({ error: 'Enquiry is no longer open' });
+    }
+
+    await pool.query("UPDATE quotations SET status = 'accepted' WHERE id = $1", [quotationId]);
+    await pool.query(
+      "UPDATE quotations SET status = 'rejected' WHERE enquiry_id = $1 AND id != $2",
+      [quotation.enquiry_id, quotationId]
+    );
+    await pool.query("UPDATE enquiries SET status = 'awarded' WHERE id = $1", [quotation.enquiry_id]);
+
+    res.json({ message: 'Quotation accepted successfully' });
+  } catch (error) {
+    console.error('Accept quotation error:', error);
+    res.status(500).json({ error: 'Failed to accept quotation' });
+  }
+};
+
 // GET /api/enquiries/:id/quotations (Buyer only - see all quotes for their enquiry)
 export const getEnquiryQuotations = async (req, res) => {
   try {

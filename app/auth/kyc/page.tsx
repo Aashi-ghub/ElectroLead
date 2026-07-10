@@ -40,14 +40,49 @@ export default function KYCPage() {
     }))
   }
 
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   const handleNext = () => {
     if (step < 3) {
       setStep(step + 1)
     }
   }
 
-  const handleSubmit = () => {
-    router.push("/auth/kyc-status")
+  const uploadDocument = async (file: File, documentType: string) => {
+    const body = new FormData()
+    body.append("document", file)
+    body.append("document_type", documentType)
+    const res = await fetch("/api/kyc/upload", { method: "POST", body })
+    if (!res.ok) {
+      const data = await res.json().catch(() => null)
+      throw new Error(data?.error || "Upload failed")
+    }
+  }
+
+  const handleSubmit = async () => {
+    setError(null)
+    setUploading(true)
+    try {
+      if (formData.panNumber) {
+        await fetch("/api/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pan_number: formData.panNumber }),
+        })
+      }
+      if (formData.gstFile) {
+        await uploadDocument(formData.gstFile, "gst_certificate")
+      }
+      if (formData.addressProofFile) {
+        await uploadDocument(formData.addressProofFile, "address_proof")
+      }
+      router.push("/auth/kyc-status")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed. Please try again.")
+    } finally {
+      setUploading(false)
+    }
   }
 
   return (
@@ -242,10 +277,16 @@ export default function KYCPage() {
           </div>
         )}
 
+        {error && (
+          <div className="mt-6 px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/30 text-sm text-destructive">
+            {error}
+          </div>
+        )}
+
         {/* Buttons */}
         <div className="flex gap-4 mt-8">
           {step > 1 && (
-            <Button variant="outline" onClick={() => setStep(step - 1)} className="px-6">
+            <Button variant="outline" onClick={() => setStep(step - 1)} className="px-6" disabled={uploading}>
               Back
             </Button>
           )}
@@ -254,8 +295,8 @@ export default function KYCPage() {
               Continue
             </Button>
           ) : (
-            <Button onClick={handleSubmit} className="px-6">
-              Complete Verification
+            <Button onClick={handleSubmit} className="px-6" disabled={uploading}>
+              {uploading ? "Uploading..." : "Complete Verification"}
             </Button>
           )}
         </div>

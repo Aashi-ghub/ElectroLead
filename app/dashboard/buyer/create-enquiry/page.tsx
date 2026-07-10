@@ -2,25 +2,30 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import DashboardLayout from "@/components/dashboard-layout"
+import { useSession } from "@/hooks/use-session"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
 
 export default function CreateEnquiryPage() {
   const router = useRouter()
-  const [user, setUser] = useState<{ name: string; role: string; email: string } | null>(null)
+  const { user, loading } = useSession()
   const [step, setStep] = useState(1)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     projectType: "",
     priority: "",
     products: [] as { name: string; specs: string; quantity: string; unit: string }[],
-    targetArea: "",
-    states: [] as string[],
+    city: "",
+    state: "",
+    budgetMin: "",
+    budgetMax: "",
     quoteDeadline: "",
     projectStart: "",
     deliveryBy: "",
@@ -59,21 +64,46 @@ export default function CreateEnquiryPage() {
     if (step < 3) setStep(step + 1)
   }
 
-  const handleSubmit = () => {
-    router.push("/dashboard/buyer/enquiries")
+  const handleSubmit = async () => {
+    setError(null)
+    setSubmitting(true)
+    try {
+      const productLines = formData.products
+        .filter((p) => p.name)
+        .map((p) => `- ${p.name}${p.specs ? ` (${p.specs})` : ""}${p.quantity ? `: ${p.quantity} ${p.unit}` : ""}`)
+      const description = [formData.description, productLines.length ? "\n\nProducts:\n" + productLines.join("\n") : ""]
+        .join("")
+        .trim()
+
+      const res = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: formData.title,
+          description: description || undefined,
+          city: formData.city,
+          state: formData.state || undefined,
+          budget_min: formData.budgetMin ? Number(formData.budgetMin) : undefined,
+          budget_max: formData.budgetMax ? Number(formData.budgetMax) : undefined,
+          quote_deadline: formData.quoteDeadline || undefined,
+          project_start_date: formData.projectStart || undefined,
+          delivery_date: formData.deliveryBy || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || data.errors?.[0]?.message || "Failed to create enquiry")
+        return
+      }
+      router.push("/dashboard/buyer/enquiries")
+    } catch {
+      setError("Could not reach the server. Please try again.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      const userData = JSON.parse(storedUser)
-      setUser(userData)
-    } else {
-      router.push("/auth/login")
-    }
-  }, [router])
-
-  if (!user) return null
+  if (loading || !user) return null
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
@@ -217,22 +247,58 @@ export default function CreateEnquiryPage() {
             </div>
           )}
 
-          {/* Step 3: Supplier Targeting */}
+          {/* Step 3: Location, Budget & Timeline */}
           {step === 3 && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold">Supplier Targeting & Timeline</h2>
-              <div>
-                <label className="block text-sm font-medium mb-2">Target Area</label>
-                <select
-                  name="targetArea"
-                  value={formData.targetArea}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="">Select area</option>
-                  <option value="specific">Specific State</option>
-                  <option value="all">All India</option>
-                </select>
+              <h2 className="text-xl font-semibold">Location, Budget & Timeline</h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder="Mumbai"
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <p className="text-xs text-foreground/50 mt-1">Required - determines which suppliers see this enquiry.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">State</label>
+                  <input
+                    type="text"
+                    name="state"
+                    value={formData.state}
+                    onChange={handleChange}
+                    placeholder="Maharashtra"
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Budget Min (₹)</label>
+                  <input
+                    type="number"
+                    name="budgetMin"
+                    value={formData.budgetMin}
+                    onChange={handleChange}
+                    placeholder="1500000"
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Budget Max (₹)</label>
+                  <input
+                    type="number"
+                    name="budgetMax"
+                    value={formData.budgetMax}
+                    onChange={handleChange}
+                    placeholder="2000000"
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
               </div>
               <div className="space-y-3">
                 <label className="block text-sm font-medium">Timeline</label>
@@ -261,10 +327,16 @@ export default function CreateEnquiryPage() {
             </div>
           )}
 
+          {error && (
+            <div className="mt-6 px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/30 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+
           {/* Buttons */}
           <div className="flex gap-4 mt-8">
             {step > 1 && (
-              <Button variant="outline" onClick={() => setStep(step - 1)} className="px-6">
+              <Button variant="outline" onClick={() => setStep(step - 1)} className="px-6" disabled={submitting}>
                 Back
               </Button>
             )}
@@ -273,8 +345,8 @@ export default function CreateEnquiryPage() {
                 Next
               </Button>
             ) : (
-              <Button onClick={handleSubmit} className="px-6">
-                Publish Enquiry
+              <Button onClick={handleSubmit} className="px-6" disabled={submitting}>
+                {submitting ? "Publishing..." : "Publish Enquiry"}
               </Button>
             )}
           </div>

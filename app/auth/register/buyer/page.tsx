@@ -11,6 +11,8 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 
 export default function BuyerRegisterPage() {
   const router = useRouter()
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     companyName: "",
     businessType: "",
@@ -18,6 +20,8 @@ export default function BuyerRegisterPage() {
     fullName: "",
     email: "",
     mobile: "",
+    city: "",
+    state: "",
     password: "",
     agreeTerms: false,
   })
@@ -30,9 +34,37 @@ export default function BuyerRegisterPage() {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    router.push("/auth/kyc")
+    setError(null)
+    setSubmitting(true)
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: formData.fullName,
+          phone: formData.mobile,
+          role: "buyer",
+          city: formData.city,
+          state: formData.state,
+          company_name: formData.companyName,
+          gst_number: formData.gstNumber || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || data.errors?.[0]?.message || "Registration failed")
+        return
+      }
+      router.push("/auth/kyc")
+    } catch {
+      setError("Could not reach the server. Please try again.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -178,6 +210,32 @@ export default function BuyerRegisterPage() {
                 </div>
               </div>
 
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground/80 ml-1">City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder="Mumbai"
+                    className="w-full px-5 py-3 border border-border rounded-xl bg-input focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground/80 ml-1">State</label>
+                  <input
+                    type="text"
+                    name="state"
+                    value={formData.state}
+                    onChange={handleChange}
+                    placeholder="Maharashtra"
+                    className="w-full px-5 py-3 border border-border rounded-xl bg-input focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground/80 ml-1">Password</label>
                 <input
@@ -185,8 +243,9 @@ export default function BuyerRegisterPage() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Create a strong password"
+                  placeholder="Create a strong password (min 8 characters)"
                   className="w-full px-5 py-3 border border-border rounded-xl bg-input focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  minLength={8}
                   required
                 />
               </div>
@@ -207,8 +266,18 @@ export default function BuyerRegisterPage() {
               </label>
             </div>
 
-            <button type="submit" className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/25">
-              Create Account <ArrowRight size={18} className="rotate-[-45deg]" />
+            {error && (
+              <div className="px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/30 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/25 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {submitting ? "Creating account..." : "Create Account"} <ArrowRight size={18} className="rotate-[-45deg]" />
             </button>
           </form>
         </div>

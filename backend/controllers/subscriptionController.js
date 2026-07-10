@@ -1,16 +1,23 @@
 import pool from '../config/database.js';
 import razorpay from '../config/razorpay.js';
 
+// Must match the tiers shown on the public pricing page.
+const PLAN_AMOUNTS = {
+  local: { paise: 200000, rupees: 2000.0 },
+  state: { paise: 600000, rupees: 6000.0 },
+  national: { paise: 1500000, rupees: 15000.0 },
+};
+
 // POST /api/subscriptions/create-order (Seller only)
 export const createSubscriptionOrder = async (req, res) => {
   try {
     const { plan_type } = req.body;
 
-    if (!['local', 'state', 'national'].includes(plan_type)) {
+    if (!PLAN_AMOUNTS[plan_type]) {
       return res.status(400).json({ error: 'Invalid plan type' });
     }
 
-    const amount = 99900; // ₹999 in paise
+    const amount = PLAN_AMOUNTS[plan_type].paise;
 
     // Create Razorpay order
     const options = {
@@ -41,7 +48,7 @@ export const verifySubscription = async (req, res) => {
   try {
     const { order_id, payment_id, plan_type } = req.body;
 
-    if (!['local', 'state', 'national'].includes(plan_type)) {
+    if (!PLAN_AMOUNTS[plan_type]) {
       return res.status(400).json({ error: 'Invalid plan type' });
     }
 
@@ -67,7 +74,7 @@ export const verifySubscription = async (req, res) => {
       `INSERT INTO subscriptions (user_id, plan_type, amount_paid, razorpay_payment_id, razorpay_order_id, start_date, end_date)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [req.user.id, plan_type, 999.00, payment_id, order_id, startDate, endDate]
+      [req.user.id, plan_type, PLAN_AMOUNTS[plan_type].rupees, payment_id, order_id, startDate, endDate]
     );
 
     res.json({
@@ -80,5 +87,39 @@ export const verifySubscription = async (req, res) => {
   }
 };
 
+// POST /api/subscriptions/activate-test (Seller only, non-production only)
+// Bypasses Razorpay entirely so the paywall/subscription mechanics can be
+// tested end-to-end before real payment gateway credentials exist. Hard
+// disabled outside development/test so it can never be reachable in prod.
+export const activateTestSubscription = async (req, res) => {
+  try {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({ error: 'Not available in production' });
+    }
 
+    const { plan_type } = req.body;
 
+    if (!PLAN_AMOUNTS[plan_type]) {
+      return res.status(400).json({ error: 'Invalid plan type' });
+    }
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 30);
+
+    const result = await pool.query(
+      `INSERT INTO subscriptions (user_id, plan_type, amount_paid, razorpay_payment_id, razorpay_order_id, start_date, end_date)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [req.user.id, plan_type, PLAN_AMOUNTS[plan_type].rupees, 'test_bypass', 'test_bypass', startDate, endDate]
+    );
+
+    res.json({
+      message: 'Test subscription activated (Razorpay bypassed - not a real payment)',
+      subscription: result.rows[0],
+    });
+  } catch (error) {
+    console.error('Activate test subscription error:', error);
+    res.status(500).json({ error: 'Failed to activate test subscription' });
+  }
+};

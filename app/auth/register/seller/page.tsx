@@ -11,11 +11,19 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 
 export default function SellerRegisterPage() {
   const router = useRouter()
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     companyName: "",
     businessType: "",
     yearEstablished: "",
     gstNumber: "",
+    fullName: "",
+    email: "",
+    mobile: "",
+    city: "",
+    state: "",
+    password: "",
     categories: [] as string[],
   })
 
@@ -48,9 +56,37 @@ export default function SellerRegisterPage() {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    router.push("/auth/kyc")
+    setError(null)
+    setSubmitting(true)
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: formData.fullName,
+          phone: formData.mobile,
+          role: "seller",
+          city: formData.city,
+          state: formData.state,
+          company_name: formData.companyName,
+          gst_number: formData.gstNumber || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || data.errors?.[0]?.message || "Registration failed")
+        return
+      }
+      router.push("/auth/kyc")
+    } catch {
+      setError("Could not reach the server. Please try again.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -166,6 +202,94 @@ export default function SellerRegisterPage() {
 
             <hr className="border-border" />
 
+            <div className="grid gap-6">
+              <h2 className="text-xl font-bold">Contact Details</h2>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground/80 ml-1">Full Name</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="Enter your name"
+                  className="w-full px-5 py-3 border border-border rounded-xl bg-input focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+                  required
+                />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground/80 ml-1">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="your@email.com"
+                    className="w-full px-5 py-3 border border-border rounded-xl bg-input focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground/80 ml-1">Mobile</label>
+                  <input
+                    type="tel"
+                    name="mobile"
+                    value={formData.mobile}
+                    onChange={handleChange}
+                    placeholder="+91 98765 43210"
+                    className="w-full px-5 py-3 border border-border rounded-xl bg-input focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground/80 ml-1">City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder="Mumbai"
+                    className="w-full px-5 py-3 border border-border rounded-xl bg-input focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+                    required
+                  />
+                  <p className="text-xs text-foreground/50 ml-1">
+                    This determines which buyers&apos; enquiries you&apos;ll see.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground/80 ml-1">State</label>
+                  <input
+                    type="text"
+                    name="state"
+                    value={formData.state}
+                    onChange={handleChange}
+                    placeholder="Maharashtra"
+                    className="w-full px-5 py-3 border border-border rounded-xl bg-input focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground/80 ml-1">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Create a strong password (min 8 characters)"
+                  className="w-full px-5 py-3 border border-border rounded-xl bg-input focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+                  minLength={8}
+                  required
+                />
+              </div>
+            </div>
+
+            <hr className="border-border" />
+
             <div className="space-y-4">
               <h2 className="text-xl font-bold">Product Categories</h2>
               <p className="text-sm text-foreground/60">Select the categories you supply</p>
@@ -191,8 +315,18 @@ export default function SellerRegisterPage() {
               </div>
             </div>
 
-            <button type="submit" className="w-full py-4 bg-secondary text-primary-foreground font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-secondary/25">
-              Continue to KYC <ArrowRight size={18} />
+            {error && (
+              <div className="px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/30 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full py-4 bg-secondary text-primary-foreground font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-secondary/25 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {submitting ? "Creating account..." : "Continue to KYC"} <ArrowRight size={18} />
             </button>
           </form>
         </div>

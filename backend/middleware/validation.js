@@ -32,6 +32,8 @@ export const schemas = {
     city: Joi.string().max(100).optional(),
     state: Joi.string().max(100).optional(),
     company_name: Joi.string().max(255).optional(),
+    gst_number: Joi.string().max(20).optional(),
+    pan_number: Joi.string().max(20).optional(),
   }),
 
   login: Joi.object({
@@ -56,6 +58,8 @@ export const schemas = {
     city: Joi.string().max(100).optional(),
     state: Joi.string().max(100).optional(),
     company_name: Joi.string().max(255).optional(),
+    gst_number: Joi.string().max(20).optional(),
+    pan_number: Joi.string().max(20).optional(),
   }),
 
   createEnquiry: Joi.object({
@@ -64,7 +68,7 @@ export const schemas = {
     city: Joi.string().max(100).required(),
     state: Joi.string().max(100).optional(),
     budget_min: Joi.number().positive().optional(),
-    budget_max: Joi.number().positive().optional(),
+    budget_max: Joi.number().positive().min(Joi.ref('budget_min')).optional(),
     quote_deadline: Joi.date().iso().optional(),
     project_start_date: Joi.date().iso().optional(),
     delivery_date: Joi.date().iso().optional(),

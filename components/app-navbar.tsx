@@ -4,20 +4,14 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { Menu, X, LogOut, User, MessageSquare, Home } from "lucide-react"
+import { useSession } from "@/hooks/use-session"
 
 function AppNavbar() {
   const pathname = usePathname()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
-  const [user, setUser] = useState<{ name: string; role: string } | null>(null)
+  const { user } = useSession()
   const [isScrolled, setIsScrolled] = useState(false)
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
-  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,8 +25,8 @@ function AppNavbar() {
 
   if (isAuthPage) return null
 
-  const handleLogout = () => {
-    localStorage.removeItem("user")
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" })
     router.push("/")
   }
 

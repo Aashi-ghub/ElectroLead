@@ -19,6 +19,8 @@ CREATE TABLE users (
     city VARCHAR(100),
     state VARCHAR(100),
     company_name VARCHAR(255),
+    gst_number VARCHAR(20),
+    pan_number VARCHAR(20),
     kyc_status VARCHAR(20) DEFAULT 'pending' CHECK (kyc_status IN ('pending', 'approved', 'rejected')),
     otp_hash VARCHAR(255),
     otp_expires_at TIMESTAMP,

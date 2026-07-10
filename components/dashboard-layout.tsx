@@ -32,8 +32,8 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
-  const handleLogout = () => {
-    localStorage.removeItem("user")
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" })
     router.push("/auth/login")
   }
 

@@ -73,6 +73,34 @@ export const getMyEnquiries = async (req, res) => {
   }
 };
 
+// GET /api/enquiries/:id (Buyer only - own enquiry)
+export const getEnquiryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `SELECT id, buyer_id, title, description, city, state, budget_min, budget_max,
+              quote_deadline, project_start_date, delivery_date, status, created_at,
+              (SELECT COUNT(*) FROM quotations WHERE enquiry_id = enquiries.id) as quote_count
+       FROM enquiries WHERE id = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Enquiry not found' });
+    }
+
+    if (result.rows[0].buyer_id !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    res.json({ enquiry: result.rows[0] });
+  } catch (error) {
+    console.error('Get enquiry error:', error);
+    res.status(500).json({ error: 'Failed to fetch enquiry' });
+  }
+};
+
 // DELETE /api/enquiries/:id (Buyer only)
 export const deleteEnquiry = async (req, res) => {
   try {

@@ -1,5 +1,5 @@
 import express from 'express';
-import { createSubscriptionOrder, verifySubscription } from '../controllers/subscriptionController.js';
+import { createSubscriptionOrder, verifySubscription, activateTestSubscription } from '../controllers/subscriptionController.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -9,6 +9,7 @@ router.use(authenticate, requireRole('seller'));
 
 router.post('/create-order', createSubscriptionOrder);
 router.post('/verify', verifySubscription);
+router.post('/activate-test', activateTestSubscription);
 
 export default router;
 

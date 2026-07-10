@@ -7,7 +7,7 @@ import { sendOTPEmail } from '../config/email.js';
 // POST /api/register
 export const register = async (req, res) => {
   try {
-    const { email, password, name, phone, role, city, state, company_name } = req.body;
+    const { email, password, name, phone, role, city, state, company_name, gst_number, pan_number } = req.body;
 
     // Check if user exists
     const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
@@ -20,10 +20,10 @@ export const register = async (req, res) => {
 
     // Create user
     const result = await pool.query(
-      `INSERT INTO users (email, password_hash, name, phone, role, city, state, company_name)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO users (email, password_hash, name, phone, role, city, state, company_name, gst_number, pan_number)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING id, email, name, role`,
-      [email, passwordHash, name, phone, role, city, state, company_name]
+      [email, passwordHash, name, phone, role, city, state, company_name, gst_number, pan_number]
     );
 
     const user = result.rows[0];

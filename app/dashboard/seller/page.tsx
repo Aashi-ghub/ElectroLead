@@ -1,58 +1,71 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import DashboardLayout from "@/components/dashboard-layout"
-import { BarChart3, MessageSquare, TrendingUp, Star } from "lucide-react"
+import { useSession } from "@/hooks/use-session"
+import { BarChart3, TrendingUp, Award } from "lucide-react"
+
+interface SellerEnquiry {
+  id: string
+  title: string
+  city: string
+  state: string | null
+  budget_min: string | null
+  budget_max: string | null
+  buyer_name: string
+  buyer_company: string | null
+  quote_count: number
+}
+
+interface MyQuotation {
+  status: string
+  total_price: string
+}
+
+function formatBudget(min: string | null, max: string | null) {
+  if (!min && !max) return "Not set"
+  const fmt = (v: string) => `₹${(Number(v) / 100000).toFixed(1)}L`
+  if (min && max) return `${fmt(min)} - ${fmt(max)}`
+  return fmt(min || max || "0")
+}
 
 export default function SellerDashboard() {
-  const router = useRouter()
-  const [user, setUser] = useState<{ name: string; role: string; email: string } | null>(null)
-  const [leads] = useState([
-    {
-      id: 1,
-      title: "Industrial Plant Setup",
-      location: "Mumbai",
-      budget: "₹15-20L",
-      views: 24,
-      quotes: 12,
-      buyer: "Raj Electronics",
-      rating: 4.8,
-    },
-    {
-      id: 2,
-      title: "Commercial Complex",
-      location: "Pune",
-      budget: "₹8-12L",
-      views: 18,
-      quotes: 8,
-      buyer: "New buyer",
-      rating: 0,
-    },
-  ])
+  const { user, loading } = useSession()
+  const [leads, setLeads] = useState<SellerEnquiry[]>([])
+  const [quotes, setQuotes] = useState<MyQuotation[]>([])
+  const [loadingData, setLoadingData] = useState(true)
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (!storedUser) {
-      router.push("/auth/login")
-    } else {
-      setUser(JSON.parse(storedUser))
-    }
-  }, [router])
+    Promise.all([
+      fetch("/api/enquiries/list").then((res) => (res.ok ? res.json() : { enquiries: [] })),
+      fetch("/api/my-quotations").then((res) => (res.ok ? res.json() : { quotations: [] })),
+    ])
+      .then(([enquiryData, quoteData]) => {
+        setLeads(enquiryData.enquiries ?? [])
+        setQuotes(quoteData.quotations ?? [])
+      })
+      .finally(() => setLoadingData(false))
+  }, [])
 
-  if (!user) return null
+  if (loading || !user) return null
+
+  const accepted = quotes.filter((q) => q.status === "accepted")
+  const acceptanceRate = quotes.length > 0 ? Math.round((accepted.length / quotes.length) * 100) : 0
+  const valueWon = accepted.reduce((sum, q) => sum + Number(q.total_price), 0)
+
+  const stats = [
+    { label: "Available Leads", value: String(leads.length), icon: TrendingUp },
+    { label: "Quotes Submitted", value: String(quotes.length), icon: BarChart3 },
+    { label: "Acceptance Rate", value: `${acceptanceRate}%`, icon: Award },
+    { label: "Value Won", value: valueWon > 0 ? `₹${(valueWon / 100000).toFixed(1)}L` : "-", icon: TrendingUp },
+  ]
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
       {/* Stats */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Active Leads", value: "24", icon: TrendingUp },
-            { label: "Quote Acceptance", value: "45%", icon: BarChart3 },
-            { label: "Total Value", value: "₹2.8Cr", icon: TrendingUp },
-            { label: "Rating", value: "4.7", icon: Star },
-          ].map((stat, i) => (
+        {stats.map((stat, i) => (
           <div key={i} className="p-6 bg-[var(--isabella)] rounded-xl border border-border hover:border-primary/60 transition-colors">
             <div className="flex items-center justify-between">
               <div>
@@ -75,44 +88,44 @@ export default function SellerDashboard() {
           <Link href="/dashboard/seller/quotes" className="btn-outline">
             My Quotes
           </Link>
-          <Link href="/messages" className="btn-outline flex items-center gap-2">
-            <MessageSquare size={16} /> Messages
-          </Link>
         </div>
       </div>
 
       {/* Matching Enquiries */}
       <div>
         <h2 className="text-lg font-semibold text-primary mb-4">Matching Enquiries</h2>
-        <div className="space-y-4">
-          {leads.map((lead) => (
-            <div
-              key={lead.id}
-              className="p-6 bg-[var(--surface-panel)] rounded-xl border border-border hover:border-primary/60 transition-all"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="font-semibold text-lg text-primary">{lead.title}</h3>
-                  <p className="text-sm text-foreground/60">
-                    {lead.location} • {lead.budget}
-                  </p>
-                  <p className="text-xs text-foreground/50 mt-1">
-                    By: {lead.buyer} {lead.rating > 0 && `• ⭐ ${lead.rating}`}
-                  </p>
+        {loadingData ? (
+          <p className="text-sm text-foreground/60">Loading...</p>
+        ) : leads.length === 0 ? (
+          <p className="text-sm text-foreground/60">No enquiries available in your region right now.</p>
+        ) : (
+          <div className="space-y-4">
+            {leads.slice(0, 5).map((lead) => (
+              <div
+                key={lead.id}
+                className="p-6 bg-[var(--surface-panel)] rounded-xl border border-border hover:border-primary/60 transition-all"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold text-lg text-primary">{lead.title}</h3>
+                    <p className="text-sm text-foreground/60">
+                      {[lead.city, lead.state].filter(Boolean).join(", ")} • {formatBudget(lead.budget_min, lead.budget_max)}
+                    </p>
+                    <p className="text-xs text-foreground/50 mt-1">By: {lead.buyer_company || lead.buyer_name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-6 text-sm">
+                    <span className="text-foreground/60">{lead.quote_count} quotes so far</span>
+                  </div>
+                  <Link href={`/dashboard/seller/enquiry/${lead.id}`} className="btn-primary text-sm">
+                    Submit Quote
+                  </Link>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex gap-6 text-sm">
-                  <span className="text-foreground/60">{lead.views} views</span>
-                  <span className="text-foreground/60">{lead.quotes} quotes</span>
-                </div>
-                <Link href={`/dashboard/seller/enquiry/${lead.id}`} className="btn-primary text-sm">
-                  Submit Quote
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   )

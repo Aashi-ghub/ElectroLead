@@ -141,16 +141,22 @@ const server = app.listen(PORT, () => {
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
-// Handle uncaught exceptions
+// Handle uncaught exceptions - the process is in an undefined state after a
+// truly uncaught synchronous exception, so exiting (and letting the process
+// manager restart it) is the right call here.
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
   gracefulShutdown('uncaughtException');
 });
 
-// Handle unhandled promise rejections
+// A rejected promise with no .catch() is almost always a single failed
+// request to a third-party API (Cloudinary, Razorpay, email) that isn't
+// fatal to the process - e.g. bad Cloudinary credentials reject a promise
+// deep in its SDK outside our own try/catch. Taking the whole server down
+// for that turns one bad upload into a full outage for every user. Log it
+// so the underlying bug still gets noticed and fixed, but keep serving.
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  gracefulShutdown('unhandledRejection');
 });
 
 // Handle termination signals

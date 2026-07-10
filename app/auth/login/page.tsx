@@ -2,33 +2,63 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff, ArrowRight } from "lucide-react"
 
+const ROLE_HOME: Record<string, string> = {
+  buyer: "/dashboard/buyer",
+  seller: "/dashboard/seller",
+  admin: "/admin",
+}
+
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  )
+}
+
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    rememberMe: false,
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
-    }))
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const role = formData.email.includes("buyer") ? "buyer" : "seller"
-    localStorage.setItem("user", JSON.stringify({ name: "User", role }))
-    router.push(role === "buyer" ? "/dashboard/buyer" : "/dashboard/seller")
+    setError(null)
+    setSubmitting(true)
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || "Login failed")
+        return
+      }
+      const next = searchParams.get("next")
+      router.push(next || ROLE_HOME[data.user.role] || "/")
+    } catch {
+      setError("Could not reach the server. Please try again.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -119,22 +149,18 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 px-1">
-              <input
-                type="checkbox"
-                id="remember"
-                name="rememberMe"
-                checked={formData.rememberMe}
-                onChange={handleChange}
-                className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-              />
-              <label htmlFor="remember" className="text-sm text-foreground/60 cursor-pointer select-none">
-                Keep me signed in for 30 days
-              </label>
-            </div>
+            {error && (
+              <div className="px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/30 text-sm text-destructive">
+                {error}
+              </div>
+            )}
 
-            <button type="submit" className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/25">
-              Access Control Room <ArrowRight size={18} />
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/25 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {submitting ? "Signing in..." : "Access Control Room"} <ArrowRight size={18} />
             </button>
           </form>
 

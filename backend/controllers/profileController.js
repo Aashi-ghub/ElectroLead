@@ -21,7 +21,7 @@ const upload = multer({
 export const getProfile = async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, email, name, phone, role, city, state, company_name, kyc_status, created_at
+      `SELECT id, email, name, phone, role, city, state, company_name, gst_number, pan_number, kyc_status, created_at
        FROM users WHERE id = $1`,
       [req.user.id]
     );
@@ -59,7 +59,7 @@ export const getProfile = async (req, res) => {
 // PUT /api/profile
 export const updateProfile = async (req, res) => {
   try {
-    const { name, phone, city, state, company_name } = req.body;
+    const { name, phone, city, state, company_name, gst_number, pan_number } = req.body;
 
     const updateFields = [];
     const values = [];
@@ -84,6 +84,14 @@ export const updateProfile = async (req, res) => {
     if (company_name !== undefined) {
       updateFields.push(`company_name = $${paramCount++}`);
       values.push(company_name);
+    }
+    if (gst_number !== undefined) {
+      updateFields.push(`gst_number = $${paramCount++}`);
+      values.push(gst_number);
+    }
+    if (pan_number !== undefined) {
+      updateFields.push(`pan_number = $${paramCount++}`);
+      values.push(pan_number);
     }
 
     if (updateFields.length === 0) {

@@ -1,68 +1,60 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import DashboardLayout from "@/components/dashboard-layout"
-import { BarChart3, MessageSquare, TrendingUp, Clock, Plus } from "lucide-react"
+import { useSession } from "@/hooks/use-session"
+import { BarChart3, TrendingUp, Clock, Plus } from "lucide-react"
+
+interface Enquiry {
+  id: string
+  title: string
+  city: string
+  state: string | null
+  budget_min: string | null
+  budget_max: string | null
+  status: "open" | "closed" | "awarded"
+  created_at: string
+  quote_count: number
+}
+
+const STATUS_LABEL: Record<string, string> = { open: "Active", closed: "Closed", awarded: "Awarded" }
+const STATUS_CLASS: Record<string, string> = {
+  open: "bg-primary/10 text-primary",
+  awarded: "bg-green-500/10 text-green-600",
+  closed: "bg-muted text-foreground/60",
+}
 
 export default function BuyerDashboard() {
-  const router = useRouter()
-  const [user, setUser] = useState<{ name: string; role: string; email: string } | null>(null)
-  const [enquiries] = useState([
-    {
-      id: 1,
-      title: "Industrial Cables",
-      location: "Mumbai",
-      budget: "₹15-20L",
-      quotes: 12,
-      messages: 8,
-      status: "active",
-      daysLeft: 2,
-    },
-    {
-      id: 2,
-      title: "Transformer Supply",
-      location: "Pan India",
-      budget: "₹8-12L",
-      quotes: 8,
-      messages: 12,
-      status: "awarded",
-      daysLeft: 0,
-    },
-    {
-      id: 3,
-      title: "Switchgear Panel",
-      location: "Gujarat",
-      budget: "Not set",
-      quotes: 0,
-      messages: 0,
-      status: "draft",
-      daysLeft: 0,
-    },
-  ])
+  const { user, loading } = useSession()
+  const [enquiries, setEnquiries] = useState<Enquiry[]>([])
+  const [loadingEnquiries, setLoadingEnquiries] = useState(true)
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (!storedUser) {
-      router.push("/auth/login")
-    } else {
-      setUser(JSON.parse(storedUser))
-    }
-  }, [router])
+    fetch("/api/enquiries/my-enquiries")
+      .then((res) => (res.ok ? res.json() : { enquiries: [] }))
+      .then((data) => setEnquiries(data.enquiries ?? []))
+      .finally(() => setLoadingEnquiries(false))
+  }, [])
 
-  if (!user) return null
+  if (loading || !user) return null
+
+  const activeCount = enquiries.filter((e) => e.status === "open").length
+  const totalQuotes = enquiries.reduce((sum, e) => sum + Number(e.quote_count || 0), 0)
+  const totalBudget = enquiries.reduce((sum, e) => sum + Number(e.budget_max || e.budget_min || 0), 0)
+
+  const stats = [
+    { label: "Active Enquiries", value: String(activeCount), icon: TrendingUp },
+    { label: "Total Enquiries", value: String(enquiries.length), icon: Clock },
+    { label: "Quotes Received", value: String(totalQuotes), icon: BarChart3 },
+    { label: "Total Budget Posted", value: totalBudget > 0 ? `₹${(totalBudget / 100000).toFixed(1)}L` : "-", icon: BarChart3 },
+  ]
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
       {/* Stats */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Active Enquiries", value: "12", icon: TrendingUp },
-            { label: "Responses Pending", value: "8", icon: Clock },
-            { label: "Total Value", value: "₹45L", icon: BarChart3 },
-            { label: "Avg Response", value: "24h", icon: Clock },
-          ].map((stat, i) => (
+        {stats.map((stat, i) => (
           <div key={i} className="p-6 bg-[var(--isabella)] rounded-xl border border-border hover:border-primary/60 transition-colors">
             <div className="flex items-center justify-between">
               <div>
@@ -85,53 +77,46 @@ export default function BuyerDashboard() {
           <Link href="/dashboard/buyer/enquiries" className="btn-outline">
             View All Enquiries
           </Link>
-          <Link href="/messages" className="btn-outline flex items-center gap-2">
-            <MessageSquare size={16} /> Messages
-          </Link>
         </div>
       </div>
 
       {/* Recent Enquiries */}
       <div>
         <h2 className="text-lg font-semibold text-primary mb-4">Recent Enquiries</h2>
-        <div className="space-y-4">
-          {enquiries.map((enquiry) => (
-            <div
-              key={enquiry.id}
-              className="p-6 bg-[var(--surface-panel)] rounded-xl border border-border hover:border-primary/60 transition-all"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="font-semibold text-lg text-primary">{enquiry.title}</h3>
-                  <p className="text-sm text-foreground/60">
-                    {enquiry.location} • {enquiry.budget}
-                  </p>
+        {loadingEnquiries ? (
+          <p className="text-sm text-foreground/60">Loading...</p>
+        ) : enquiries.length === 0 ? (
+          <p className="text-sm text-foreground/60">No enquiries yet. Create your first one to get started.</p>
+        ) : (
+          <div className="space-y-4">
+            {enquiries.slice(0, 5).map((enquiry) => (
+              <div
+                key={enquiry.id}
+                className="p-6 bg-[var(--surface-panel)] rounded-xl border border-border hover:border-primary/60 transition-all"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold text-lg text-primary">{enquiry.title}</h3>
+                    <p className="text-sm text-foreground/60">
+                      {[enquiry.city, enquiry.state].filter(Boolean).join(", ")}
+                    </p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_CLASS[enquiry.status]}`}>
+                    {STATUS_LABEL[enquiry.status]}
+                  </span>
                 </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    enquiry.status === "active"
-                      ? "bg-primary/10 text-primary"
-                      : enquiry.status === "awarded"
-                        ? "bg-green-500/10 text-green-600"
-                        : "bg-muted text-foreground/60"
-                  }`}
-                >
-                  {enquiry.status === "active" ? "Active" : enquiry.status === "awarded" ? "Awarded" : "Draft"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex gap-6 text-sm">
-                  <span className="text-foreground/60">{enquiry.quotes} Quotes</span>
-                  <span className="text-foreground/60">{enquiry.messages} Messages</span>
-                  {enquiry.daysLeft > 0 && <span className="text-[var(--reseda-green)]">{enquiry.daysLeft} days left</span>}
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-6 text-sm">
+                    <span className="text-foreground/60">{enquiry.quote_count} Quotes</span>
+                  </div>
+                  <Link href={`/dashboard/buyer/enquiry/${enquiry.id}`} className="btn-outline text-sm">
+                    View Details
+                  </Link>
                 </div>
-                <Link href={`/dashboard/buyer/enquiry/${enquiry.id}`} className="btn-outline text-sm">
-                  View Details
-                </Link>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   )

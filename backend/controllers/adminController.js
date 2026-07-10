@@ -11,7 +11,7 @@ export const getUsers = async (req, res) => {
     const role = req.query.role;
 
     let query = `
-      SELECT id, email, name, role, city, state, company_name, kyc_status, is_active, created_at
+      SELECT id, email, name, role, city, state, company_name, gst_number, pan_number, kyc_status, is_active, created_at
       FROM users
       WHERE role != 'admin'
     `;
@@ -82,6 +82,28 @@ export const approveKyc = async (req, res) => {
   } catch (error) {
     console.error('Approve KYC error:', error);
     res.status(500).json({ error: 'Failed to update KYC status' });
+  }
+};
+
+// GET /admin/users/:id/documents
+export const getUserDocuments = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userResult = await pool.query('SELECT id FROM users WHERE id = $1', [id]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, document_type, file_url, uploaded_at FROM user_documents WHERE user_id = $1 ORDER BY uploaded_at DESC',
+      [id]
+    );
+
+    res.json({ documents: result.rows });
+  } catch (error) {
+    console.error('Get user documents error:', error);
+    res.status(500).json({ error: 'Failed to fetch documents' });
   }
 };
 

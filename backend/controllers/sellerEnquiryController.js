@@ -1,21 +1,72 @@
 import pool from '../config/database.js';
 
-// GET /api/enquiries (Seller only - city-based with subscription filtering)
+const ENQUIRY_COLUMNS = `
+  e.id, e.title, e.description, e.city, e.state, e.budget_min, e.budget_max,
+  e.quote_deadline, e.created_at,
+  u.name as buyer_name, u.company_name as buyer_company,
+  (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id) as quote_count,
+  (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id AND seller_id = $1) as my_quote_count
+`;
+
+// Builds the scoped list query + a fully independent count query (its own
+// $1.. numbering - Postgres can't infer a placeholder's type if it never
+// appears in that query's own text, even if a value is supplied for it).
+// Optionally narrowed to a single enquiry id - same scope rules apply
+// either way, so an out-of-scope id just returns zero rows.
+function buildScopedQuery({ field, value, enquiryId, limit, offset }) {
+  const listParams = [];
+  let listClause = "e.status = 'open'";
+  if (field) {
+    listParams.push(value);
+    listClause += ` AND ${field} = $${listParams.length + 1}`; // +1: $1 is reserved for seller id
+  }
+  if (enquiryId) {
+    listParams.push(enquiryId);
+    listClause += ` AND e.id = $${listParams.length + 1}`;
+  }
+  const limitIndex = listParams.length + 2;
+  const offsetIndex = limitIndex + 1;
+
+  const query = `
+    SELECT ${ENQUIRY_COLUMNS}
+    FROM enquiries e
+    JOIN users u ON e.buyer_id = u.id
+    WHERE ${listClause}
+    ORDER BY e.created_at DESC
+    LIMIT $${limitIndex} OFFSET $${offsetIndex}
+  `;
+  const params = [null, ...listParams, limit, offset]; // params[0] filled by caller with seller id
+
+  const countParams = [];
+  let countClause = "e.status = 'open'";
+  if (field) {
+    countParams.push(value);
+    countClause += ` AND ${field} = $${countParams.length}`;
+  }
+  if (enquiryId) {
+    countParams.push(enquiryId);
+    countClause += ` AND e.id = $${countParams.length}`;
+  }
+  const countQuery = `SELECT COUNT(*) FROM enquiries e WHERE ${countClause}`;
+
+  return { query, params, countQuery, countParams };
+}
+
+// GET /api/enquiries (Seller only - subscription-scoped, always keyed off the
+// seller's own profile city/state, never a client-supplied query param -
+// otherwise a seller could read any region's enquiries by editing the URL,
+// bypassing the paid geographic-access paywall entirely).
 export const getAvailableEnquiries = async (req, res) => {
   try {
-    // Enforce pagination limits (max 20)
-    const { city } = req.query;
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 20, 20);
     const offset = (page - 1) * limit;
-
-    if (!city) {
-      return res.status(400).json({ error: 'City parameter required' });
-    }
+    // Optional single-enquiry lookup (same scope rules as the list).
+    const enquiryId = req.query.id || null;
 
     // Check if seller has active subscription
     const subscriptionResult = await pool.query(
-      `SELECT * FROM subscriptions 
+      `SELECT * FROM subscriptions
        WHERE user_id = $1 AND status = 'active' AND end_date >= CURRENT_DATE
        ORDER BY created_at DESC
        LIMIT 1`,
@@ -24,105 +75,31 @@ export const getAvailableEnquiries = async (req, res) => {
 
     const hasSubscription = subscriptionResult.rows.length > 0;
     const subscription = hasSubscription ? subscriptionResult.rows[0] : null;
-    
-    // Free sellers can only view enquiries in their city (local scope)
-    // Paid sellers have subscription-based scope
-    let query = '';
-    let params = [];
-    let paramCount = 1;
+    const planType = hasSubscription ? subscription.plan_type : 'local'; // free tier = local scope
 
-    if (!hasSubscription) {
-      // Free tier: Only enquiries in seller's city
-      query = `
-        SELECT e.id, e.title, e.description, e.city, e.state, e.budget_min, e.budget_max, 
-               e.quote_deadline, e.created_at,
-               u.name as buyer_name, u.company_name as buyer_company,
-               (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id) as quote_count,
-               (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id AND seller_id = $${paramCount}) as my_quote_count
-        FROM enquiries e
-        JOIN users u ON e.buyer_id = u.id
-        WHERE e.status = 'open' AND e.city = $${paramCount + 1}
-        ORDER BY e.created_at DESC
-        LIMIT $${paramCount + 2} OFFSET $${paramCount + 3}
-      `;
-      params = [req.user.id, city, limit, offset];
-    } else if (subscription.plan_type === 'local') {
-      // Local plan: Only enquiries in seller's city
-      query = `
-        SELECT e.id, e.title, e.description, e.city, e.state, e.budget_min, e.budget_max, 
-               e.quote_deadline, e.created_at,
-               u.name as buyer_name, u.company_name as buyer_company,
-               (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id) as quote_count,
-               (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id AND seller_id = $${paramCount}) as my_quote_count
-        FROM enquiries e
-        JOIN users u ON e.buyer_id = u.id
-        WHERE e.status = 'open' AND e.city = $${paramCount + 1}
-        ORDER BY e.created_at DESC
-        LIMIT $${paramCount + 2} OFFSET $${paramCount + 3}
-      `;
-      params = [req.user.id, city, limit, offset];
-    } else if (subscription.plan_type === 'state') {
-      // State plan: Enquiries in seller's state
-      const sellerStateResult = await pool.query('SELECT state FROM users WHERE id = $1', [req.user.id]);
-      const sellerState = sellerStateResult.rows[0]?.state;
+    let scoped;
 
+    if (planType === 'local') {
+      const sellerResult = await pool.query('SELECT city FROM users WHERE id = $1', [req.user.id]);
+      const sellerCity = sellerResult.rows[0]?.city;
+      if (!sellerCity) {
+        return res.status(400).json({ error: 'City not set in profile' });
+      }
+      scoped = buildScopedQuery({ field: 'e.city', value: sellerCity, enquiryId, limit, offset });
+    } else if (planType === 'state') {
+      const sellerResult = await pool.query('SELECT state FROM users WHERE id = $1', [req.user.id]);
+      const sellerState = sellerResult.rows[0]?.state;
       if (!sellerState) {
         return res.status(400).json({ error: 'State not set in profile' });
       }
-
-      query = `
-        SELECT e.id, e.title, e.description, e.city, e.state, e.budget_min, e.budget_max, 
-               e.quote_deadline, e.created_at,
-               u.name as buyer_name, u.company_name as buyer_company,
-               (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id) as quote_count,
-               (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id AND seller_id = $${paramCount}) as my_quote_count
-        FROM enquiries e
-        JOIN users u ON e.buyer_id = u.id
-        WHERE e.status = 'open' AND e.state = $${paramCount + 1}
-        ORDER BY e.created_at DESC
-        LIMIT $${paramCount + 2} OFFSET $${paramCount + 3}
-      `;
-      params = [req.user.id, sellerState, limit, offset];
+      scoped = buildScopedQuery({ field: 'e.state', value: sellerState, enquiryId, limit, offset });
     } else {
-      // National plan: All enquiries (no geographic restriction)
-      query = `
-        SELECT e.id, e.title, e.description, e.city, e.state, e.budget_min, e.budget_max, 
-               e.quote_deadline, e.created_at,
-               u.name as buyer_name, u.company_name as buyer_company,
-               (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id) as quote_count,
-               (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id AND seller_id = $${paramCount}) as my_quote_count
-        FROM enquiries e
-        JOIN users u ON e.buyer_id = u.id
-        WHERE e.status = 'open'
-        ORDER BY e.created_at DESC
-        LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
-      `;
-      params = [req.user.id, limit, offset];
+      scoped = buildScopedQuery({ field: null, value: null, enquiryId, limit, offset });
     }
 
-    const result = await pool.query(query, params);
-
-    // Get count for pagination
-    let countQuery = '';
-    let countParams = [];
-    
-    if (!hasSubscription) {
-      countQuery = 'SELECT COUNT(*) FROM enquiries WHERE status = \'open\' AND city = $1';
-      countParams = [city];
-    } else if (subscription.plan_type === 'local') {
-      countQuery = 'SELECT COUNT(*) FROM enquiries WHERE status = \'open\' AND city = $1';
-      countParams = [city];
-    } else if (subscription.plan_type === 'state') {
-      const sellerStateResult = await pool.query('SELECT state FROM users WHERE id = $1', [req.user.id]);
-      const sellerState = sellerStateResult.rows[0]?.state;
-      countQuery = 'SELECT COUNT(*) FROM enquiries WHERE status = \'open\' AND state = $1';
-      countParams = [sellerState];
-    } else {
-      countQuery = 'SELECT COUNT(*) FROM enquiries WHERE status = \'open\'';
-      countParams = [];
-    }
-
-    const countResult = await pool.query(countQuery, countParams);
+    scoped.params[0] = req.user.id;
+    const result = await pool.query(scoped.query, scoped.params);
+    const countResult = await pool.query(scoped.countQuery, scoped.countParams);
 
     // Get current month's quotation count for free sellers
     let monthlyQuotationCount = 0;
@@ -131,7 +108,7 @@ export const getAvailableEnquiries = async (req, res) => {
       currentMonthStart.setDate(1);
       currentMonthStart.setHours(0, 0, 0, 0);
       const quotationCountResult = await pool.query(
-        `SELECT COUNT(*) as count FROM quotations 
+        `SELECT COUNT(*) as count FROM quotations
          WHERE seller_id = $1 AND created_at >= $2`,
         [req.user.id, currentMonthStart]
       );
@@ -161,4 +138,3 @@ export const getAvailableEnquiries = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch enquiries' });
   }
 };
-
