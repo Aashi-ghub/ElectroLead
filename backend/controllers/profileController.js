@@ -111,6 +111,13 @@ export const updateProfile = async (req, res) => {
 
 // POST /api/profile/upload-kyc
 export const uploadKyc = async (req, res) => {
+  // Cloudinary rejects with an opaque auth error when unconfigured - check
+  // up front so the client gets a clear "not configured" message instead of
+  // a generic failure that looks like the same thing as a broken upload.
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    return res.status(503).json({ error: 'Document storage is not configured yet. Please try again later or contact support.' });
+  }
+
   upload(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ error: err.message });

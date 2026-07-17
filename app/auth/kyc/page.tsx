@@ -6,7 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Upload, CheckCircle, Clock } from "lucide-react"
+import { Upload, FileCheck, Clock } from "lucide-react"
 
 export default function KYCPage() {
   const router = useRouter()
@@ -140,10 +140,10 @@ export default function KYCPage() {
               </div>
               {formData.gstFile && (
                 <div className="mt-4 p-4 bg-primary/5 rounded-lg flex items-center gap-3">
-                  <CheckCircle size={20} className="text-primary" />
+                  <FileCheck size={20} className="text-primary" />
                   <div>
                     <p className="text-sm font-medium">{formData.gstFile.name}</p>
-                    <p className="text-xs text-foreground/60">Verified</p>
+                    <p className="text-xs text-foreground/60">Selected — will be uploaded for review on submit</p>
                   </div>
                 </div>
               )}
@@ -232,10 +232,10 @@ export default function KYCPage() {
               </div>
               {formData.addressProofFile && (
                 <div className="mt-4 p-4 bg-accent/5 rounded-lg flex items-center gap-3">
-                  <Clock size={20} className="text-accent" />
+                  <FileCheck size={20} className="text-accent" />
                   <div>
                     <p className="text-sm font-medium">{formData.addressProofFile.name}</p>
-                    <p className="text-xs text-foreground/60">Verifying</p>
+                    <p className="text-xs text-foreground/60">Selected — will be uploaded for review on submit</p>
                   </div>
                 </div>
               )}
@@ -246,33 +246,34 @@ export default function KYCPage() {
         {/* Step 3: Review */}
         {step === 3 && (
           <div className="space-y-6">
-            <div className="p-6 bg-primary/5 rounded-lg border border-primary/20">
-              <h3 className="font-semibold mb-4">Verification Summary</h3>
+            <div className="p-6 bg-muted rounded-lg border border-border">
+              <h3 className="font-semibold mb-4">Ready to Submit</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-foreground/70">PAN Verification</span>
-                  <span className="flex items-center gap-2 text-primary">
-                    <CheckCircle size={16} /> Completed
+                  <span className="text-foreground/70">PAN Number</span>
+                  <span className="flex items-center gap-2">
+                    {formData.panNumber || <span className="text-foreground/40">Not provided</span>}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-foreground/70">GST Verification</span>
-                  <span className="flex items-center gap-2 text-primary">
-                    <CheckCircle size={16} /> Completed
+                  <span className="text-foreground/70">GST Certificate</span>
+                  <span className="flex items-center gap-2">
+                    {formData.gstFile?.name || <span className="text-foreground/40">Not provided</span>}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-foreground/70">Address Verification</span>
-                  <span className="flex items-center gap-2 text-accent">
-                    <Clock size={16} /> Under Review
+                  <span className="text-foreground/70">Address Proof</span>
+                  <span className="flex items-center gap-2">
+                    {formData.addressProofFile?.name || <span className="text-foreground/40">Not provided</span>}
                   </span>
                 </div>
               </div>
             </div>
 
-            <p className="text-sm text-foreground/60">
-              Your documents have been submitted for verification. This usually takes 24-48 hours. You can browse the
-              platform while we verify your account.
+            <p className="text-sm text-foreground/60 flex items-start gap-2">
+              <Clock size={16} className="text-accent mt-0.5 flex-shrink-0" />
+              Nothing here is verified yet. Submitting sends your details and documents to our team for manual
+              review, which usually takes 24-48 hours. You can browse the platform in the meantime.
             </p>
           </div>
         )}
@@ -296,7 +297,7 @@ export default function KYCPage() {
             </Button>
           ) : (
             <Button onClick={handleSubmit} className="px-6" disabled={uploading}>
-              {uploading ? "Uploading..." : "Complete Verification"}
+              {uploading ? "Submitting..." : "Submit for Review"}
             </Button>
           )}
         </div>
