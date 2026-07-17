@@ -12,6 +12,11 @@ import { apiLimiter } from './middleware/rateLimit.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Render terminates TLS at its proxy and forwards X-Forwarded-For; without
+// this, express-rate-limit sees the proxy's IP for every client and throws
+// ERR_ERL_UNEXPECTED_X_FORWARDED_FOR validation errors.
+app.set('trust proxy', 1);
+
 // Security Headers (Helmet)
 app.use(
   helmet({

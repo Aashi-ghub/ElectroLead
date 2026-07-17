@@ -5,6 +5,15 @@ dotenv.config();
 
 let transporter;
 
+// Fail fast when the SMTP server is unreachable (e.g. blank credentials or a
+// blocked outbound port on the host) instead of nodemailer's ~2 minute default,
+// which held requests open long enough to hit upstream proxy timeouts.
+const smtpTimeouts = {
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 15000,
+};
+
 if (process.env.EMAIL_PROVIDER === 'resend') {
   // Resend SMTP configuration
   transporter = nodemailer.createTransport({
@@ -15,6 +24,7 @@ if (process.env.EMAIL_PROVIDER === 'resend') {
       user: 'resend',
       pass: process.env.RESEND_API_KEY,
     },
+    ...smtpTimeouts,
   });
 } else {
   // Gmail SMTP configuration
@@ -26,6 +36,7 @@ if (process.env.EMAIL_PROVIDER === 'resend') {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    ...smtpTimeouts,
   });
 }
 

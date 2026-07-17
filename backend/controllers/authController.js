@@ -28,11 +28,15 @@ export const register = async (req, res) => {
 
     const user = result.rows[0];
 
-    // Generate and send OTP
+    // Generate and send OTP. The email send is fire-and-forget: an unreachable
+    // SMTP server must not block the registration response (it was stalling
+    // requests past upstream proxy timeouts and surfacing as 500s in prod).
     const otp = generateOTP();
     const otpHash = await hashOTP(otp);
     await storeOTP(user.id, otpHash);
-    await sendOTPEmail(email, otp);
+    sendOTPEmail(email, otp).catch((err) => {
+      console.error('Failed to send OTP email:', err);
+    });
 
     res.status(201).json({
       message: 'Registration successful. Please verify OTP.',
