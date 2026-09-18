@@ -40,7 +40,14 @@ export async function backendFetch(path: string, init: RequestInit = {}, options
   })
 
   const isJson = res.headers.get("content-type")?.includes("application/json")
-  const body = isJson ? await res.json().catch(() => null) : null
+  let body: any = isJson ? await res.json().catch(() => null) : null
+
+  if (!res.ok && !isJson) {
+    // express-rate-limit (and some other middleware) send their message as
+    // plain text, not JSON — surface it instead of silently dropping it.
+    const text = await res.text().catch(() => "")
+    if (text) body = { error: text }
+  }
 
   if (!res.ok) {
     throw new BackendError(res.status, body)
