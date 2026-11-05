@@ -21,14 +21,14 @@ Anything missing falls back to a generated tile, so partial sets are fine.
 
 | File | Status | Notes |
 |---|---|---|
-| `cables.jpg` | ⚠️ **wrong product** | Currently RJ45 network patch leads. This platform sells LT/HT armoured power cable — anyone in the trade will spot it. Needs cable drums or coiled power cable. |
-| `switchgear.jpg` | ✅ | MCBs / surge protection on DIN rail |
-| `testing.jpg` | ✅ | Electronics bench with meter probes |
-| `transformers.jpg` | ❌ missing | Oil-cooled distribution transformer or substation bay |
-| `lighting.jpg` | ❌ missing | Industrial LED high-bay, or street/high-mast at dusk |
-| `motors.jpg` | ❌ missing | Industrial three-phase motor, close up |
-| `solar.jpg` | ❌ missing | Rooftop solar array |
-| `conduits.jpg` | ❌ missing | Overhead cable tray runs or conduit installation |
+| `switchgear.jpg` | ✅ | Distribution board with MCBs and wiring |
+| `conduits.jpg` | ✅ | Technician working at terminals in an enclosure |
+| `testing.jpg` | ✅ | Technician servicing a meter / supply box |
+| `cables.jpg` | ❌ **needed** | Cable drums, coiled power cable, or armoured cable ends. The supplied `cables.avif` is RJ45 network patch leads — wrong product for a platform selling LT/HT power cable, so it is not mapped. |
+| `transformers.jpg` | ❌ **needed** | Oil-cooled distribution transformer or substation bay |
+| `lighting.jpg` | ❌ **needed** | Industrial LED high-bay, or street/high-mast at dusk |
+| `motors.jpg` | ❌ **needed** | Industrial three-phase motor, close up |
+| `solar.jpg` | ❌ **needed** | Rooftop solar panel array |
 
 ### `scenes/` — 1920 × 1080, hero and section bands
 

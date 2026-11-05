@@ -22,9 +22,11 @@ const OUT = path.join(ROOT, 'public', 'img')
 // [source filename, destination, width, height]
 const SLOTS = [
   // Category tiles - 4:3, shown small and often.
-  ['cables.avif', 'categories/cables.jpg', 800, 600],
-  ['mark-kats-uKcocyabF8s-unsplash.jpg', 'categories/switchgear.jpg', 800, 600],
-  ['jeswin-thomas-dfRrpfYD8Iw-unsplash.jpg', 'categories/testing.jpg', 800, 600],
+  // cables.avif is RJ45 patch leads, which is the wrong product for a platform
+  // selling LT/HT power cable - left unmapped until a proper photo arrives.
+  ['mark-kats-ufo5IiRdqjc-unsplash.jpg', 'categories/switchgear.jpg', 800, 600],
+  ['valentin-lacoste-fJTyegEd-6k-unsplash.jpg', 'categories/conduits.jpg', 800, 600],
+  ['raze-solar-_aSFmmvS62I-unsplash.jpg', 'categories/testing.jpg', 800, 600],
 
   // Wide scenes - 16:9, used as hero and section bands.
   ['emmanuel-ikwuegbu--0-kl1BjvFc-unsplash.jpg', 'scenes/hero.jpg', 1920, 1080],
