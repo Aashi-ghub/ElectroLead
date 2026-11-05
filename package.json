@@ -10,7 +10,8 @@
     "check:ui": "node scripts/ui-check.mjs",
     "demo:record": "node scripts/demo-recording.mjs",
     "demo:reset": "node backend/scripts/reset-demo-run.mjs",
-    "demo:seed": "node backend/scripts/seed-demo.mjs"
+    "demo:seed": "node backend/scripts/seed-demo.mjs",
+    "images": "node scripts/prepare-images.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

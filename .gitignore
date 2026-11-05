@@ -87,3 +87,6 @@ backend/_*.mjs
 
 # Demo recordings (large binaries - regenerate with scripts/demo-recording.mjs)
 demo-recording/
+
+# Source photography - large originals, processed into public/img by scripts/prepare-images.mjs
+public/_originals/
