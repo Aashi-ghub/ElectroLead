@@ -5,41 +5,38 @@ import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
 
+// Destinations that actually exist. These previously pointed at /#features and
+// /#about, which no section on the page defined, and were styled
+// text-primary-foreground (cream) on the cream header - invisible until hover.
+const LINKS = [
+  { href: "/#categories", label: "Categories" },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/pricing", label: "Pricing" },
+]
+
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <nav className="sticky top-0 z-50 bg-[var(--isabella)] text-[var(--jet-black)]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-border">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 border-b border-border">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <Link href="/" className="flex items-center">
             <span className="font-semibold text-base text-[var(--jet-black)]">VoltSupply</span>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <Link
-              href="/#features"
-              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors tracking-tight"
-            >
-              Features
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors tracking-tight"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/#about"
-              className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors tracking-tight"
-            >
-              About
-            </Link>
+            {LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm text-[var(--jet-black)]/70 hover:text-[var(--jet-black)] transition-colors tracking-tight"
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
-          {/* Desktop Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <Link href="/auth/login">
               <Button variant="ghost" size="sm" className="rounded-[6px] px-4 text-[var(--jet-black)]">
@@ -53,24 +50,28 @@ export function Navigation() {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
+          <button
+            className="md:hidden text-[var(--jet-black)]"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isOpen}
+          >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
-        {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden pb-4 space-y-3">
-            <Link href="/#features" className="block text-sm text-primary-foreground/70 hover:text-primary-foreground">
-              Features
-            </Link>
-            <Link href="/pricing" className="block text-sm text-primary-foreground/70 hover:text-primary-foreground">
-              Pricing
-            </Link>
-            <Link href="/#about" className="block text-sm text-primary-foreground/70 hover:text-primary-foreground">
-              About
-            </Link>
+            {LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className="block text-sm text-[var(--jet-black)]/70 hover:text-[var(--jet-black)]"
+              >
+                {link.label}
+              </Link>
+            ))}
             <div className="flex gap-2 pt-2">
               <Link href="/auth/login" className="flex-1">
                 <Button variant="ghost" size="sm" className="w-full rounded-[6px] text-[var(--jet-black)]">
