@@ -8,7 +8,7 @@
  * messages), plus any saved-contact bookmarks and messages on the seeded
  * enquiries. Seeded users, enquiries, quotes and subscriptions are left alone.
  */
-import 'dotenv/config'
+import './_env.mjs'
 import pg from 'pg'
 
 const RECORDING_ENQUIRY = 'Switchgear Package for Thane Metro Depot'

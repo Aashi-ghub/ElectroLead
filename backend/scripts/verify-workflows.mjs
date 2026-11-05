@@ -10,7 +10,7 @@
  *
  * Expects `node scripts/seed-demo.mjs` to have been run against the same DB.
  */
-import 'dotenv/config'
+import './_env.mjs'
 import pg from 'pg'
 
 const BASE = (process.argv[2] || 'http://localhost:3000').replace(/\/$/, '')
@@ -34,6 +34,11 @@ let createdEnquiryId = null
 // Set when the activate-test bypass actually granted a plan (non-production
 // targets only) so cleanup can take it away again.
 let bypassGrantedPlan = false
+// A seller registered during this run, so it is guaranteed to have no quote
+// relationship with anyone. Picking a seeded seller instead is fragile: as the
+// demo dataset grew, the "stranger" acquired a real relationship and the
+// negative tests started failing on correct behaviour.
+let strangerSellerId = null
 
 function record(id, title, ok, detail = '') {
   results.push({ id, title, ok, detail })
@@ -150,6 +155,7 @@ await check('A3', 'Seller registration persists city/state', async () => {
 
   const session = await req('POST', '/api/login', { body: { email, password: PASSWORD } })
   const profile = await req('GET', '/api/profile', { token: session.body.token })
+  strangerSellerId = profile.body?.user?.id ?? null
   return expect(
     profile.body?.user?.city === 'Nagpur' && profile.body?.user?.state === 'Maharashtra',
     `city/state not saved: ${JSON.stringify(profile.body?.user)}`
@@ -399,13 +405,10 @@ await check('M5', 'Opening the thread marks it read and returns the message', as
 })
 
 await check('M6', 'Messaging a non-counterparty is refused', async () => {
+  if (!strangerSellerId) return { skip: true, detail: 'no unrelated seller available' }
   const res = await req('POST', '/api/messages', {
     token: tokens.buyer,
-    body: {
-      enquiry_id: convo.enquiry_id,
-      contact_id: (await req('GET', '/api/profile', { token: tokens.sellerNational })).body.user.id,
-      body: 'should not be delivered',
-    },
+    body: { enquiry_id: convo.enquiry_id, contact_id: strangerSellerId, body: 'should not be delivered' },
   })
   return expect(res.status === 403, `expected 403, got ${res.status}`)
 })
@@ -437,8 +440,8 @@ await check('S3', 'Saved list returns the contact with relationship stats', asyn
 })
 
 await check('S5', 'Saving a non-counterparty is refused', async () => {
-  const stranger = (await req('GET', '/api/profile', { token: tokens.sellerNational })).body.user.id
-  const res = await req('POST', '/api/saved', { token: tokens.buyer, body: { contact_id: stranger } })
+  if (!strangerSellerId) return { skip: true, detail: 'no unrelated seller available' }
+  const res = await req('POST', '/api/saved', { token: tokens.buyer, body: { contact_id: strangerSellerId } })
   return expect(res.status === 403, `expected 403, got ${res.status}`)
 })
 
