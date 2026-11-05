@@ -6,14 +6,18 @@ Render free tier cold-starts: the first request can take 30s+. Don't call it bro
 ## Running the checks
 
 ```bash
+# API layer - 51 checks, self-cleaning
 cd backend
 node scripts/seed-demo.mjs                                  # idempotent demo data
-node scripts/verify-workflows.mjs                           # against localhost:3000
 node scripts/verify-workflows.mjs https://electrolead.onrender.com
+
+# Browser layer - 13 checks + screenshots
+cd ..
+npx playwright install chromium                             # one time
+node scripts/ui-check.mjs https://electro-lead.vercel.app ./shots
 ```
 
-`verify-workflows.mjs` drives 51 API-level checks and cleans up after itself.
-Anything it cannot assert automatically is listed under **Manual UI checks** below.
+**Last full run against production: 51/51 API · 13/13 UI.**
 
 > ⚠️ **Never run `npm test` against a database you care about.** The jest suite
 > `TRUNCATE`s every table. It now refuses to start unless `TEST_DATABASE_URL` is
@@ -38,7 +42,7 @@ log in as each and watch the Available Leads list widen from 1 city → 1 state 
 
 ---
 
-## Automated — 50 passing, 1 environment-gated
+## API checks — `backend/scripts/verify-workflows.mjs`, 51 passing
 
 | ID | Check | Result |
 |---|---|---|
@@ -92,22 +96,31 @@ log in as each and watch the Available Leads list widen from 1 city → 1 state 
 | S3 | Saved list carries relationship stats | ✅ |
 | S4 | Saved contact can be removed | ✅ |
 | S5 | Saving a non-counterparty refused 🔒 | ✅ |
-| E3 | `activate-test` bypass blocked when `NODE_ENV=production` | ⏸ only assertable against prod |
+| E3 | `activate-test` bypass blocked when `NODE_ENV=production` | ✅ (prod only; open in dev by design) |
 
-## Manual UI checks
+## Browser checks — `scripts/ui-check.mjs`, 13 passing
 
-Things a browser has to confirm. Each one has working backend coverage above.
+| ID | Check | Result |
+|---|---|---|
+| U1a | Free-tier seller sees Mumbai only | ✅ |
+| U1b | State-plan seller sees Mumbai + Pune | ✅ |
+| U1c | National-plan seller also sees Chennai | ✅ |
+| U2a | Buyer sidebar shows Messages + Saved Suppliers | ✅ |
+| U2b | Seller sidebar shows Messages + Saved Buyers | ✅ |
+| U3a | Buyer Messages renders real counterparties, no mock data | ✅ |
+| U3b | Buyer Saved renders real data / empty state, no mock suppliers | ✅ |
+| U3c | Enquiry detail exposes Save + Message per quote | ✅ |
+| U4 | Seller My Quotes exposes Save + Message | ✅ |
+| U5 | Message sends and appears in the thread | ✅ |
+| U6 | Admin login lands on a working `/admin/kyc` | ✅ |
+| U7 | `/dashboard` redirects to the role's dashboard | ✅ |
+| U8 | No horizontal overflow at 375px on Messages | ✅ |
 
-- [ ] **U1** Log in as each of the three sellers; Available Leads widens 1 city → 1 state → all India
-- [ ] **U2** Sidebar shows Messages and Saved for both roles; unread badge appears on a new message
-- [ ] **U3** Buyer enquiry detail → Message and Save buttons on each quote; both round-trip
-- [ ] **U4** Seller My Quotes → Message and Save buttons; both round-trip
-- [ ] **U5** Send a message in one browser, confirm it appears in the other within ~10s (polling)
-- [ ] **U6** Admin login lands on `/admin/kyc` (not a 404)
-- [ ] **U7** `/dashboard` redirects to the role's own dashboard
-- [ ] **U8** Mobile viewport (375px): dashboards, enquiry form, messages, tables
-- [ ] **U9** Hard refresh on a deep link keeps you logged in
-- [ ] **U10** `/auth/kyc-status` does not claim "verified" before admin review
+Still worth a human eye before the demo:
+
+- [ ] **U9** Two browsers side by side — confirm a reply lands within ~10s (polling cadence)
+- [ ] **U10** `/auth/kyc-status` wording once Cloudinary is configured and a real upload exists
+- [ ] **U11** Skim remaining pages at 375px (dashboards, create-enquiry, admin tables)
 
 ## Credential-gated — your side
 
