@@ -65,6 +65,7 @@ export const schemas = {
   createEnquiry: Joi.object({
     title: Joi.string().min(5).max(255).required(),
     description: Joi.string().max(5000).optional(),
+    category: Joi.string().max(100).optional(),
     city: Joi.string().max(100).required(),
     state: Joi.string().max(100).optional(),
     budget_min: Joi.number().positive().optional(),

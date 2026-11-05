@@ -7,6 +7,7 @@ export const createEnquiry = async (req, res) => {
     const {
       title,
       description,
+      category,
       city,
       state,
       budget_min,
@@ -17,10 +18,10 @@ export const createEnquiry = async (req, res) => {
     } = req.body;
 
     const result = await pool.query(
-      `INSERT INTO enquiries (buyer_id, title, description, city, state, budget_min, budget_max, quote_deadline, project_start_date, delivery_date)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO enquiries (buyer_id, title, description, category, city, state, budget_min, budget_max, quote_deadline, project_start_date, delivery_date)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
-      [req.user.id, title, description, city, state, budget_min, budget_max, quote_deadline, project_start_date, delivery_date]
+      [req.user.id, title, description, category ?? null, city, state, budget_min, budget_max, quote_deadline, project_start_date, delivery_date]
     );
 
     const enquiry = result.rows[0];

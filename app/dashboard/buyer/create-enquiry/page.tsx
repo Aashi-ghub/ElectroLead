@@ -6,6 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import DashboardLayout from "@/components/dashboard-layout"
 import { useSession } from "@/hooks/use-session"
+import { CATEGORIES } from "@/lib/categories"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
@@ -19,6 +20,7 @@ export default function CreateEnquiryPage() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    category: "",
     projectType: "",
     priority: "",
     products: [] as { name: string; specs: string; quantity: string; unit: string }[],
@@ -81,6 +83,7 @@ export default function CreateEnquiryPage() {
         body: JSON.stringify({
           title: formData.title,
           description: description || undefined,
+          category: formData.category || undefined,
           city: formData.city,
           state: formData.state || undefined,
           budget_min: formData.budgetMin ? Number(formData.budgetMin) : undefined,
@@ -160,6 +163,24 @@ export default function CreateEnquiryPage() {
                 />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Category <span className="text-foreground/50 font-normal">— decides which suppliers see this</span>
+                  </label>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <option value="">Select category</option>
+                    {CATEGORIES.map((c) => (
+                      <option key={c.key} value={c.key}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Project Type</label>
                   <select
