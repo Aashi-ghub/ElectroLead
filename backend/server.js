@@ -69,6 +69,8 @@ import enquiryRoutes from './routes/enquiryRoutes.js';
 import sellerEnquiryRoutes from './routes/sellerEnquiryRoutes.js';
 import quotationRoutes from './routes/quotationRoutes.js';
 import subscriptionRoutes from './routes/subscriptionRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
+import savedRoutes from './routes/savedRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
 app.use('/api', authRoutes);
@@ -77,6 +79,8 @@ app.use('/api/enquiries', enquiryRoutes); // Buyer routes first (more specific)
 app.use('/api/enquiries', sellerEnquiryRoutes); // Seller routes (less specific, comes after)
 app.use('/api', quotationRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/saved', savedRoutes);
 app.use('/admin', adminRoutes);
 
 // 404 handler

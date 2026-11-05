@@ -1,0 +1,27 @@
+import { NextResponse } from "next/server"
+import { backendFetch, BackendError } from "@/lib/backend"
+
+export async function GET() {
+  try {
+    const data = await backendFetch("/api/saved", { method: "GET" })
+    return NextResponse.json(data)
+  } catch (error) {
+    if (error instanceof BackendError) {
+      return NextResponse.json(error.body ?? { error: error.message }, { status: error.status })
+    }
+    return NextResponse.json({ error: "Failed to load saved contacts" }, { status: 502 })
+  }
+}
+
+export async function POST(req: Request) {
+  const body = await req.text()
+  try {
+    const data = await backendFetch("/api/saved", { method: "POST", body })
+    return NextResponse.json(data, { status: 201 })
+  } catch (error) {
+    if (error instanceof BackendError) {
+      return NextResponse.json(error.body ?? { error: error.message }, { status: error.status })
+    }
+    return NextResponse.json({ error: "Failed to save contact" }, { status: 502 })
+  }
+}

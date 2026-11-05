@@ -81,6 +81,17 @@ export const schemas = {
     payment_terms: Joi.string().max(500).optional(),
     notes: Joi.string().max(2000).optional(),
   }),
+
+  sendMessage: Joi.object({
+    enquiry_id: Joi.string().uuid().required(),
+    contact_id: Joi.string().uuid().required(),
+    body: Joi.string().trim().min(1).max(5000).required(),
+  }),
+
+  saveContact: Joi.object({
+    contact_id: Joi.string().uuid().required(),
+    note: Joi.string().max(500).allow('').optional(),
+  }),
 };
 
 

@@ -7,7 +7,8 @@ import DashboardLayout from "@/components/dashboard-layout"
 import { useSession } from "@/hooks/use-session"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ArrowLeft } from "lucide-react"
+import SaveContactButton from "@/components/save-contact-button"
+import { ArrowLeft, MessageSquare } from "lucide-react"
 
 interface EnquiryDetail {
   id: string
@@ -26,6 +27,8 @@ interface EnquiryDetail {
 
 interface Quotation {
   id: string
+  seller_id: string
+  is_saved: boolean
   total_price: string
   delivery_days: number | null
   warranty_period: string | null
@@ -189,16 +192,30 @@ export default function EnquiryDetailPage() {
                             </p>
                           )}
                           {quote.notes && <p className="text-sm text-foreground/60 mt-1">{quote.notes}</p>}
-                          {enquiry.status === "open" && quote.status === "submitted" && (
-                            <Button
-                              size="sm"
-                              className="mt-3"
-                              disabled={acceptingId === quote.id}
-                              onClick={() => handleAccept(quote.id)}
+                          <div className="flex flex-wrap items-start gap-2 mt-3">
+                            {enquiry.status === "open" && quote.status === "submitted" && (
+                              <Button
+                                size="sm"
+                                disabled={acceptingId === quote.id}
+                                onClick={() => handleAccept(quote.id)}
+                              >
+                                {acceptingId === quote.id ? "Accepting..." : "Accept Quote"}
+                              </Button>
+                            )}
+                            <Link
+                              href={`/dashboard/buyer/messages?enquiry_id=${enquiry.id}&contact_id=${quote.seller_id}`}
                             >
-                              {acceptingId === quote.id ? "Accepting..." : "Accept Quote"}
-                            </Button>
-                          )}
+                              <Button size="sm" variant="outline">
+                                <MessageSquare size={14} className="mr-1" />
+                                Message
+                              </Button>
+                            </Link>
+                            <SaveContactButton
+                              contactId={quote.seller_id}
+                              initialSaved={Boolean(quote.is_saved)}
+                              label="supplier"
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>

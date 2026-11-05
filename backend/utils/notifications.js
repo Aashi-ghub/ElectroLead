@@ -1,18 +1,18 @@
-import transporter from '../config/email.js';
+import transporter, { EMAIL_FROM } from '../config/email.js';
 import pool from '../config/database.js';
 
 // Send email notification (synchronous - no queues)
 const sendEmail = async (to, subject, html) => {
   try {
     await transporter.sendMail({
-      from: process.env.SMTP_USER || 'noreply@electrolead.com',
+      from: EMAIL_FROM,
       to,
       subject,
       html,
     });
     return true;
   } catch (error) {
-    console.error('Email send error:', error);
+    console.error('Email send error:', error.message);
     return false;
   }
 };

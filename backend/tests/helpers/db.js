@@ -27,9 +27,43 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL is required in .env file');
 }
 
+// GUARD - DO NOT REMOVE.
+// This suite TRUNCATEs every table. It previously loaded backend/.env, which
+// holds the production DATABASE_URL, and a plain `npm test` wiped the live
+// database. Tests may only ever run against a database that has opted in:
+// either TEST_DATABASE_URL is set, or DATABASE_URL names a database whose name
+// ends in _test (or is literally 'test'). Anything else aborts.
+const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+
+function assertDisposableDatabase(connectionString) {
+  let dbName;
+  try {
+    dbName = decodeURIComponent(new URL(connectionString).pathname.replace(/^\//, ''));
+  } catch {
+    throw new Error('Could not parse DATABASE_URL to verify it is a test database.');
+  }
+
+  const looksDisposable = dbName === 'test' || dbName.endsWith('_test');
+  if (process.env.TEST_DATABASE_URL || looksDisposable) return connectionString;
+
+  throw new Error(
+    [
+      '',
+      'REFUSING TO RUN TESTS: these tests TRUNCATE every table, and',
+      `the configured database ("${dbName}") is not marked as disposable.`,
+      '',
+      'Set TEST_DATABASE_URL to a throwaway database, or name the database',
+      'with a _test suffix. Never point this suite at production.',
+      '',
+    ].join('\n')
+  );
+}
+
+assertDisposableDatabase(TEST_DATABASE_URL);
+
 // Test database connection pool (use DATABASE_URL from .env)
 export const testPool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: TEST_DATABASE_URL,
   max: 10, // Increased for concurrent tests
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000, // Increased timeout

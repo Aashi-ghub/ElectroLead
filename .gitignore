@@ -77,3 +77,10 @@ Thumbs.db
 ehthumbs.db
 Icon
 
+
+# Build artifacts
+tsconfig.tsbuildinfo
+
+# Local scratch: curl cookie jars and ad-hoc DB helpers from manual testing
+*.jar
+backend/_*.mjs

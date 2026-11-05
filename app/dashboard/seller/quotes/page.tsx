@@ -6,7 +6,8 @@ import DashboardLayout from "@/components/dashboard-layout"
 import { useSession } from "@/hooks/use-session"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ArrowLeft, Search } from "lucide-react"
+import SaveContactButton from "@/components/save-contact-button"
+import { ArrowLeft, Search, MessageSquare } from "lucide-react"
 
 interface MyQuotation {
   id: string
@@ -17,8 +18,10 @@ interface MyQuotation {
   created_at: string
   enquiry_id: string
   enquiry_title: string
+  buyer_id: string
   buyer_name: string
   buyer_company: string | null
+  is_saved: boolean
 }
 
 const STATUS_CLASS: Record<string, string> = {
@@ -103,11 +106,26 @@ export default function SellerQuotesPage() {
                     </span>
                   </div>
                 </div>
-                <Link href={`/dashboard/seller/enquiry/${quote.enquiry_id}`}>
-                  <Button variant="outline" size="sm" className="px-4 bg-transparent">
-                    View Enquiry
-                  </Button>
-                </Link>
+                <div className="flex flex-wrap items-start gap-2">
+                  <Link href={`/dashboard/seller/enquiry/${quote.enquiry_id}`}>
+                    <Button variant="outline" size="sm" className="px-4 bg-transparent">
+                      View Enquiry
+                    </Button>
+                  </Link>
+                  <Link
+                    href={`/dashboard/seller/messages?enquiry_id=${quote.enquiry_id}&contact_id=${quote.buyer_id}`}
+                  >
+                    <Button variant="outline" size="sm">
+                      <MessageSquare size={14} className="mr-1" />
+                      Message
+                    </Button>
+                  </Link>
+                  <SaveContactButton
+                    contactId={quote.buyer_id}
+                    initialSaved={Boolean(quote.is_saved)}
+                    label="buyer"
+                  />
+                </div>
               </Card>
             ))}
           </div>

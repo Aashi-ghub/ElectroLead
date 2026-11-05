@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import {
@@ -16,11 +16,16 @@ import {
   User,
   Home,
   Send,
+  MessageSquare,
+  Bookmark,
 } from "lucide-react"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
-  userRole: "buyer" | "seller"
+  // Accepts the full session role: callers pass user.role straight through.
+  // Admins are kept out of /dashboard/* by middleware and have their own
+  // layout, so they simply get no sidebar items here.
+  userRole: "buyer" | "seller" | "admin"
   userName: string
   userEmail: string
 }
@@ -29,28 +34,50 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
   const router = useRouter()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [unread, setUnread] = useState(0)
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" })
     router.push("/auth/login")
   }
 
-  // Messaging and saved-suppliers/buyers are non-goals for v1 (no backend
-  // support exists for either), so they're left out of navigation rather
-  // than linking to non-functional demo pages.
+  // Badge the Messages link so a reply is visible from any page, not only
+  // after opening the inbox. Polled on the same cadence as the inbox itself.
+  useEffect(() => {
+    let active = true
+    const load = () =>
+      fetch("/api/messages/unread-count")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (active) setUnread(data?.unread ?? 0)
+        })
+        .catch(() => {})
+
+    load()
+    const id = setInterval(load, 30000)
+    return () => {
+      active = false
+      clearInterval(id)
+    }
+  }, [pathname])
+
   const buyerMenuItems = [
     { label: "Dashboard", href: "/dashboard/buyer", icon: Home },
     { label: "My Enquiries", href: "/dashboard/buyer/enquiries", icon: FileText },
     { label: "Create Enquiry", href: "/dashboard/buyer/create-enquiry", icon: Plus },
+    { label: "Messages", href: "/dashboard/buyer/messages", icon: MessageSquare, badge: unread },
+    { label: "Saved Suppliers", href: "/dashboard/buyer/saved", icon: Bookmark },
   ]
 
   const sellerMenuItems = [
     { label: "Dashboard", href: "/dashboard/seller", icon: Home },
     { label: "Available Leads", href: "/dashboard/seller/enquiries", icon: Inbox },
     { label: "My Quotes", href: "/dashboard/seller/quotes", icon: Send },
+    { label: "Messages", href: "/dashboard/seller/messages", icon: MessageSquare, badge: unread },
+    { label: "Saved Buyers", href: "/dashboard/seller/saved", icon: Bookmark },
   ]
 
-  const menuItems = userRole === "buyer" ? buyerMenuItems : sellerMenuItems
+  const menuItems = userRole === "buyer" ? buyerMenuItems : userRole === "seller" ? sellerMenuItems : []
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/")
 
@@ -89,7 +116,12 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
                 }`}
               >
                 <Icon size={20} className="flex-shrink-0" />
-                {sidebarOpen && <span className="text-sm">{item.label}</span>}
+                {sidebarOpen && <span className="text-sm flex-1">{item.label}</span>}
+                {"badge" in item && Number(item.badge) > 0 && (
+                  <span className="bg-red-500 text-white text-[10px] font-semibold rounded-full min-w-5 h-5 px-1.5 flex items-center justify-center flex-shrink-0">
+                    {item.badge}
+                  </span>
+                )}
               </Link>
             )
           })}

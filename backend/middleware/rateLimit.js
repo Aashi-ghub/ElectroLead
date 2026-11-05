@@ -18,13 +18,18 @@ export const otpLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Login rate limiter (5 attempts per 15 minutes per IP)
+// Login rate limiter (per IP). The limit is deliberately higher than the OTP
+// one: this counts *every* sign-in from an address, not failures, so a shared
+// office IP - or one person switching between buyer, seller and admin accounts
+// during a demo - hits it in minutes at a limit of 5. Twenty attempts per
+// quarter-hour against bcrypt is still nowhere near brute-forceable.
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  max: parseInt(process.env.LOGIN_RATE_LIMIT || '20', 10),
   message: 'Too many login attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: true, // only failed sign-ins count toward the limit
 });
 
 
