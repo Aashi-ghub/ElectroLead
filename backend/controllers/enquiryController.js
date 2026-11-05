@@ -47,7 +47,7 @@ export const getMyEnquiries = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const result = await pool.query(
-      `SELECT id, title, city, state, budget_min, budget_max, status, created_at,
+      `SELECT id, title, city, state, budget_min, budget_max, status, created_at, category, quote_deadline,
               (SELECT COUNT(*) FROM quotations WHERE enquiry_id = enquiries.id) as quote_count
        FROM enquiries
        WHERE buyer_id = $1
@@ -79,7 +79,7 @@ export const getEnquiryById = async (req, res) => {
     const { id } = req.params;
 
     const result = await pool.query(
-      `SELECT id, buyer_id, title, description, city, state, budget_min, budget_max,
+      `SELECT id, buyer_id, title, description, city, state, budget_min, budget_max, category,
               quote_deadline, project_start_date, delivery_date, status, created_at,
               (SELECT COUNT(*) FROM quotations WHERE enquiry_id = enquiries.id) as quote_count
        FROM enquiries WHERE id = $1`,

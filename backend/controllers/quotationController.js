@@ -106,7 +106,8 @@ export const getMyQuotations = async (req, res) => {
     const result = await pool.query(
       `SELECT q.id, q.total_price, q.delivery_days, q.warranty_period, q.payment_terms, q.notes, q.status, q.created_at,
               e.id as enquiry_id, e.title as enquiry_title, e.city, e.state, e.budget_min, e.budget_max,
-              e.buyer_id, u.name as buyer_name, u.company_name as buyer_company,
+              e.category, e.status as enquiry_status,
+              e.buyer_id, u.name as buyer_name, u.company_name as buyer_company, u.city as buyer_city,
               EXISTS (SELECT 1 FROM saved_contacts s WHERE s.owner_id = $1 AND s.contact_id = e.buyer_id) AS is_saved
        FROM quotations q
        JOIN enquiries e ON q.enquiry_id = e.id
@@ -196,7 +197,10 @@ export const getEnquiryQuotations = async (req, res) => {
     // Get all quotations for this enquiry (buyer can see all seller quotes)
     const result = await pool.query(
       `SELECT q.id, q.seller_id, q.total_price, q.delivery_days, q.warranty_period, q.payment_terms, q.notes, q.status, q.created_at,
-              u.name as seller_name, u.company_name as seller_company, u.city as seller_city,
+              u.name as seller_name, u.company_name as seller_company, u.city as seller_city, u.state as seller_state,
+              u.rating as seller_rating, u.review_count as seller_review_count,
+              u.years_in_business as seller_years, u.response_hours as seller_response_hours,
+              u.kyc_status as seller_kyc_status, u.category as seller_category, u.logo_url as seller_logo_url,
               EXISTS (SELECT 1 FROM saved_contacts s WHERE s.owner_id = $2 AND s.contact_id = q.seller_id) AS is_saved
        FROM quotations q
        JOIN users u ON q.seller_id = u.id

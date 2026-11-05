@@ -2,8 +2,8 @@ import pool from '../config/database.js';
 
 const ENQUIRY_COLUMNS = `
   e.id, e.title, e.description, e.city, e.state, e.budget_min, e.budget_max,
-  e.quote_deadline, e.created_at,
-  u.name as buyer_name, u.company_name as buyer_company,
+  e.quote_deadline, e.created_at, e.category,
+  u.name as buyer_name, u.company_name as buyer_company, u.kyc_status as buyer_kyc_status,
   (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id) as quote_count,
   (SELECT COUNT(*) FROM quotations WHERE enquiry_id = e.id AND seller_id = $1) as my_quote_count
 `;

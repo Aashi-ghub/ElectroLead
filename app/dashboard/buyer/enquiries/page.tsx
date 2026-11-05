@@ -3,35 +3,38 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import DashboardLayout from "@/components/dashboard-layout"
+import CategoryImage from "@/components/category-image"
 import { useSession } from "@/hooks/use-session"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { ArrowLeft, Search } from "lucide-react"
+import { categoryLabel, formatBudgetRange } from "@/lib/categories"
+import { Clock, FileText, MapPin, Plus, Search } from "lucide-react"
 
 interface Enquiry {
   id: string
   title: string
   city: string
   state: string | null
+  category: string | null
   budget_min: string | null
   budget_max: string | null
+  quote_deadline: string | null
   status: "open" | "closed" | "awarded"
   created_at: string
   quote_count: number
 }
 
-const STATUS_LABEL: Record<string, string> = { open: "Active", closed: "Closed", awarded: "Awarded" }
+const STATUS_LABEL: Record<string, string> = { open: "Open", closed: "Closed", awarded: "Awarded" }
 const STATUS_CLASS: Record<string, string> = {
   open: "bg-primary/10 text-primary",
-  awarded: "bg-green-500/10 text-green-600",
+  awarded: "bg-[var(--reseda-green)]/15 text-[var(--reseda-green)]",
   closed: "bg-muted text-foreground/60",
 }
 
-function formatBudget(min: string | null, max: string | null) {
-  if (!min && !max) return "Not set"
-  const fmt = (v: string) => `₹${(Number(v) / 100000).toFixed(1)}L`
-  if (min && max) return `${fmt(min)} - ${fmt(max)}`
-  return fmt(min || max || "0")
+const FILTERS = ["all", "open", "awarded", "closed"] as const
+
+function daysLeft(iso: string | null) {
+  if (!iso) return null
+  return Math.ceil((new Date(iso).getTime() - Date.now()) / 86400000)
 }
 
 export default function EnquiriesPage() {
@@ -39,6 +42,7 @@ export default function EnquiriesPage() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([])
   const [loadingEnquiries, setLoadingEnquiries] = useState(true)
   const [search, setSearch] = useState("")
+  const [status, setStatus] = useState<(typeof FILTERS)[number]>("all")
 
   useEffect(() => {
     fetch("/api/enquiries/my-enquiries")
@@ -49,82 +53,142 @@ export default function EnquiriesPage() {
 
   if (loading || !user) return null
 
-  const filtered = enquiries.filter((e) => e.title.toLowerCase().includes(search.toLowerCase()))
+  const term = search.trim().toLowerCase()
+  const filtered = enquiries.filter(
+    (e) =>
+      (!term || e.title.toLowerCase().includes(term) || e.city.toLowerCase().includes(term)) &&
+      (status === "all" || e.status === status)
+  )
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
-          <Link href="/dashboard/buyer">
-            <button className="text-foreground/60 hover:text-foreground">
-              <ArrowLeft size={24} />
-            </button>
-          </Link>
-          <h1 className="text-2xl font-bold">My Enquiries</h1>
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">My Enquiries</h1>
+          <p className="text-foreground/60 mt-1">Everything you have posted, and the quotes against it.</p>
         </div>
-      </header>
+        <Link href="/dashboard/buyer/create-enquiry">
+          <Button className="gap-1.5">
+            <Plus size={16} />
+            New enquiry
+          </Button>
+        </Link>
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search & Filter */}
-        <div className="mb-8 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60" size={20} />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search enquiries..."
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <Link href="/dashboard/buyer/create-enquiry">
-            <Button>Create New</Button>
-          </Link>
+      <div className="mb-5 space-y-3">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" size={18} />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by title or city..."
+            className="w-full pl-10 pr-4 h-11 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
+          />
         </div>
 
-        {/* Enquiries List */}
-        {loadingEnquiries ? (
-          <p className="text-sm text-foreground/60">Loading...</p>
-        ) : filtered.length === 0 ? (
-          <p className="text-sm text-foreground/60">No enquiries yet. Create your first one to get started.</p>
-        ) : (
-          <div className="space-y-4">
-            {filtered.map((enquiry) => (
-              <Card key={enquiry.id} className="p-6 border border-border bg-card hover:border-primary/60 transition-colors">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{enquiry.title}</h3>
-                    <p className="text-sm text-foreground/60">
-                      {[enquiry.city, enquiry.state].filter(Boolean).join(", ")} • {formatBudget(enquiry.budget_min, enquiry.budget_max)}
-                    </p>
-                    <p className="text-xs text-foreground/50 mt-1">
-                      Posted: {new Date(enquiry.created_at).toLocaleDateString()}
-                    </p>
+        <div className="flex flex-wrap gap-2">
+          {FILTERS.map((f) => {
+            const count = f === "all" ? enquiries.length : enquiries.filter((e) => e.status === f).length
+            return (
+              <button
+                key={f}
+                onClick={() => setStatus(f)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border capitalize transition-colors ${
+                  status === f
+                    ? "bg-[var(--jet-black)] text-primary-foreground border-[var(--jet-black)]"
+                    : "bg-card border-border hover:border-primary/60"
+                }`}
+              >
+                {f === "all" ? "All" : STATUS_LABEL[f]} ({count})
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {loadingEnquiries ? (
+        <p className="text-foreground/60">Loading...</p>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-10 text-center">
+          <FileText className="mx-auto mb-3 text-foreground/30" size={36} />
+          <h2 className="font-semibold text-lg mb-1">
+            {enquiries.length === 0 ? "No enquiries yet" : "Nothing matches that filter"}
+          </h2>
+          <p className="text-sm text-foreground/60 max-w-md mx-auto mb-5">
+            {enquiries.length === 0
+              ? "Post what you need and verified suppliers near your site will quote on it."
+              : "Try a different search term or status."}
+          </p>
+          {enquiries.length === 0 && (
+            <Link href="/dashboard/buyer/create-enquiry">
+              <Button size="sm" className="gap-1.5">
+                <Plus size={15} />
+                Post your first enquiry
+              </Button>
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((enquiry) => {
+            const left = enquiry.status === "open" ? daysLeft(enquiry.quote_deadline) : null
+            return (
+              <Link
+                key={enquiry.id}
+                href={`/dashboard/buyer/enquiry/${enquiry.id}`}
+                className="block bg-card rounded-xl border border-border overflow-hidden hover:border-primary/60 transition-colors"
+              >
+                <article className="flex flex-col sm:flex-row">
+                  <CategoryImage
+                    categoryKey={enquiry.category}
+                    className="w-full h-28 sm:w-32 sm:h-auto shrink-0"
+                  />
+                  <div className="flex-1 p-4 sm:p-5 min-w-0">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[11px] uppercase tracking-wide text-[var(--reseda-green)] font-semibold mb-1">
+                          {categoryLabel(enquiry.category)}
+                        </p>
+                        <h2 className="font-semibold text-lg leading-snug">{enquiry.title}</h2>
+                        <p className="text-sm text-foreground/60 mt-1 flex items-center gap-1">
+                          <MapPin size={13} />
+                          {[enquiry.city, enquiry.state].filter(Boolean).join(", ")}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span
+                          className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full ${
+                            STATUS_CLASS[enquiry.status]
+                          }`}
+                        >
+                          {STATUS_LABEL[enquiry.status]}
+                        </span>
+                        <p className="text-base font-bold text-primary mt-2">
+                          {formatBudgetRange(enquiry.budget_min, enquiry.budget_max)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 pt-3 border-t border-border text-xs text-foreground/60">
+                      <span className="font-medium text-foreground/80">
+                        {enquiry.quote_count} quote{Number(enquiry.quote_count) === 1 ? "" : "s"} received
+                      </span>
+                      {left !== null && (
+                        <span className={`flex items-center gap-1 ${left <= 3 ? "text-destructive font-medium" : ""}`}>
+                          <Clock size={12} />
+                          {left > 0 ? `${left} day${left === 1 ? "" : "s"} left` : "Deadline passed"}
+                        </span>
+                      )}
+                      <span className="ml-auto text-primary font-medium">View quotes →</span>
+                    </div>
                   </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${STATUS_CLASS[enquiry.status]}`}
-                  >
-                    {STATUS_LABEL[enquiry.status]}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-6 text-sm">
-                    <span className="text-foreground/60">{enquiry.quote_count} Quotes</span>
-                  </div>
-                  <Link href={`/dashboard/buyer/enquiry/${enquiry.id}`}>
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
-                  </Link>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
+                </article>
+              </Link>
+            )
+          })}
+        </div>
+      )}
     </DashboardLayout>
   )
 }

@@ -4,11 +4,22 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import DashboardLayout from "@/components/dashboard-layout"
+import CategoryImage from "@/components/category-image"
+import SaveContactButton from "@/components/save-contact-button"
 import { useSession } from "@/hooks/use-session"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import SaveContactButton from "@/components/save-contact-button"
-import { ArrowLeft, MessageSquare } from "lucide-react"
+import { categoryLabel, formatBudgetRange, formatINR } from "@/lib/categories"
+import {
+  ArrowLeft,
+  BadgeCheck,
+  Clock,
+  MapPin,
+  MessageSquare,
+  Star,
+  TrendingUp,
+  Trophy,
+} from "lucide-react"
 
 interface EnquiryDetail {
   id: string
@@ -16,6 +27,7 @@ interface EnquiryDetail {
   description: string | null
   city: string
   state: string | null
+  category: string | null
   budget_min: string | null
   budget_max: string | null
   quote_deadline: string | null
@@ -39,6 +51,19 @@ interface Quotation {
   seller_name: string
   seller_company: string | null
   seller_city: string | null
+  seller_state: string | null
+  seller_rating: string | null
+  seller_review_count: number
+  seller_years: number | null
+  seller_response_hours: number | null
+  seller_kyc_status: string | null
+  seller_category: string | null
+}
+
+const STATUS_STYLE: Record<string, string> = {
+  open: "bg-primary/10 text-primary",
+  awarded: "bg-[var(--reseda-green)]/15 text-[var(--reseda-green)]",
+  closed: "bg-muted text-foreground/60",
 }
 
 export default function EnquiryDetailPage() {
@@ -82,177 +107,283 @@ export default function EnquiryDetailPage() {
 
   if (loading || !user) return null
 
+  // Lowest price gets a marker. On a comparison screen the buyer is going to
+  // work it out anyway; surfacing it saves them doing arithmetic across cards.
+  const lowest = quotes.length
+    ? quotes.reduce((min, q) => (Number(q.total_price) < Number(min.total_price) ? q : min))
+    : null
+
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
-      <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-card sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
-            <Link href="/dashboard/buyer/enquiries">
-              <button className="text-foreground/60 hover:text-foreground">
-                <ArrowLeft size={24} />
-              </button>
-            </Link>
-            <h1 className="text-2xl font-bold">{enquiry?.title ?? "Enquiry"}</h1>
-          </div>
-        </header>
+      <div className="flex items-start gap-3 mb-6">
+        <Link href="/dashboard/buyer/enquiries" className="mt-1.5 text-foreground/50 hover:text-foreground">
+          <ArrowLeft size={22} />
+        </Link>
+        <div className="min-w-0">
+          {enquiry?.category && (
+            <p className="text-[11px] uppercase tracking-wide text-[var(--reseda-green)] font-semibold mb-1">
+              {categoryLabel(enquiry.category)}
+            </p>
+          )}
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight">{enquiry?.title ?? "Enquiry"}</h1>
+        </div>
+      </div>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {loadingData ? (
-            <p className="text-sm text-foreground/60">Loading...</p>
-          ) : error || !enquiry ? (
-            <p className="text-sm text-destructive">{error ?? "Enquiry not found."}</p>
-          ) : (
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-6">
-                {error && (
-                  <div className="px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/30 text-sm text-destructive">
-                    {error}
-                  </div>
-                )}
-                {/* Project Overview */}
-                <Card className="p-6">
-                  <h2 className="text-lg font-semibold mb-4">Project Overview</h2>
-                  <div className="space-y-4 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-foreground/60">Location</span>
-                      <span className="font-medium">{[enquiry.city, enquiry.state].filter(Boolean).join(", ")}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-foreground/60">Budget</span>
-                      <span className="font-medium">
-                        {enquiry.budget_min || enquiry.budget_max
-                          ? `₹${enquiry.budget_min ?? "?"} - ₹${enquiry.budget_max ?? "?"}`
-                          : "Not set"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-foreground/60">Status</span>
-                      <span className="font-medium capitalize">{enquiry.status}</span>
-                    </div>
-                    {enquiry.description && (
-                      <div>
-                        <span className="text-foreground/60 block mb-1">Description</span>
-                        <p className="font-medium whitespace-pre-wrap">{enquiry.description}</p>
-                      </div>
-                    )}
-                  </div>
-                </Card>
+      {loadingData ? (
+        <p className="text-foreground/60">Loading...</p>
+      ) : !enquiry ? (
+        <p className="text-destructive">{error ?? "Enquiry not found."}</p>
+      ) : (
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            {error && (
+              <div className="px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/30 text-sm text-destructive">
+                {error}
+              </div>
+            )}
 
-                {/* Quotes Received - confidential comparison: buyer sees every seller's
-                    price and identity here, but each seller only ever sees their own
-                    quote (enforced server-side, not just hidden in this UI). */}
-                <Card className="p-6">
-                  <h2 className="text-lg font-semibold mb-4">Quotes Received ({quotes.length})</h2>
-                  {quotes.length === 0 ? (
-                    <p className="text-sm text-foreground/60">No quotes yet.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {quotes.map((quote) => (
-                        <div
-                          key={quote.id}
-                          className="p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors"
-                        >
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <h3 className="font-medium">{quote.seller_company || quote.seller_name}</h3>
-                              <p className="text-sm text-foreground/60">
-                                {quote.seller_name} • {quote.seller_city ?? "-"}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <span className="text-lg font-bold text-primary block">
-                                ₹{Number(quote.total_price).toLocaleString("en-IN")}
-                              </span>
-                              {quote.status !== "submitted" && (
+            {/* Overview */}
+            <Card className="overflow-hidden">
+              <div className="flex flex-col sm:flex-row">
+                <CategoryImage categoryKey={enquiry.category} className="w-full h-32 sm:w-40 sm:h-auto shrink-0" />
+                <div className="p-5 flex-1">
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <h2 className="text-lg font-semibold">Requirement</h2>
+                    <span
+                      className={`text-xs font-medium px-2.5 py-1 rounded-full capitalize ${
+                        STATUS_STYLE[enquiry.status] ?? "bg-muted"
+                      }`}
+                    >
+                      {enquiry.status}
+                    </span>
+                  </div>
+                  <dl className="grid sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <dt className="text-foreground/55 text-xs mb-0.5">Delivery location</dt>
+                      <dd className="font-medium flex items-center gap-1.5">
+                        <MapPin size={14} className="text-foreground/40" />
+                        {[enquiry.city, enquiry.state].filter(Boolean).join(", ")}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-foreground/55 text-xs mb-0.5">Budget</dt>
+                      <dd className="font-medium text-primary">
+                        {formatBudgetRange(enquiry.budget_min, enquiry.budget_max)}
+                      </dd>
+                    </div>
+                  </dl>
+                  {enquiry.description && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <p className="text-sm text-foreground/75 whitespace-pre-wrap leading-relaxed">
+                        {enquiry.description}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+
+            {/* Quotes — the buyer sees every supplier's price and identity here;
+                each seller only ever sees their own quote, enforced server-side. */}
+            <Card className="p-5">
+              <h2 className="text-lg font-semibold mb-1">Quotes received ({quotes.length})</h2>
+              <p className="text-sm text-foreground/55 mb-5">
+                Only you can see these. Suppliers never see each other's pricing.
+              </p>
+
+              {quotes.length === 0 ? (
+                <p className="text-sm text-foreground/60 py-6 text-center">
+                  No quotes yet. Suppliers in {enquiry.city} are notified when a requirement opens.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {quotes.map((quote) => {
+                    const isLowest = lowest?.id === quote.id && quotes.length > 1
+                    const accepted = quote.status === "accepted"
+                    return (
+                      <div
+                        key={quote.id}
+                        className={`p-4 rounded-xl border transition-colors ${
+                          accepted
+                            ? "border-[var(--reseda-green)]/50 bg-[var(--reseda-green)]/5"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+                          <div className="min-w-0">
+                            <h3 className="font-semibold flex items-center gap-1.5 flex-wrap">
+                              {quote.seller_company || quote.seller_name}
+                              {quote.seller_kyc_status === "approved" && (
                                 <span
-                                  className={`text-xs font-medium capitalize ${
-                                    quote.status === "accepted" ? "text-green-600" : "text-foreground/50"
-                                  }`}
+                                  title="KYC verified supplier"
+                                  className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--reseda-green)] bg-[var(--reseda-green)]/10 px-1.5 py-0.5 rounded-full"
                                 >
-                                  {quote.status}
+                                  <BadgeCheck size={11} />
+                                  Verified
+                                </span>
+                              )}
+                            </h3>
+                            <p className="text-xs text-foreground/55 mt-0.5">
+                              {quote.seller_name}
+                              {quote.seller_city ? ` · ${quote.seller_city}` : ""}
+                            </p>
+
+                            {/* Reputation: a price means little without it. */}
+                            <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-foreground/65">
+                              {quote.seller_rating && (
+                                <span className="flex items-center gap-1">
+                                  <Star size={12} className="text-primary fill-primary" />
+                                  <span className="font-semibold">{Number(quote.seller_rating).toFixed(1)}</span>
+                                  <span className="text-foreground/45">({quote.seller_review_count})</span>
+                                </span>
+                              )}
+                              {quote.seller_years && (
+                                <span className="flex items-center gap-1">
+                                  <TrendingUp size={12} className="text-foreground/40" />
+                                  {quote.seller_years} yrs
+                                </span>
+                              )}
+                              {quote.seller_response_hours && (
+                                <span className="flex items-center gap-1">
+                                  <Clock size={12} className="text-foreground/40" />
+                                  replies ~{quote.seller_response_hours}h
                                 </span>
                               )}
                             </div>
                           </div>
-                          <div className="grid sm:grid-cols-2 gap-4 text-sm mb-2">
-                            <div>
-                              <span className="text-foreground/60">Delivery: </span>
-                              <span className="font-medium">{quote.delivery_days ? `${quote.delivery_days} days` : "-"}</span>
-                            </div>
-                            <div>
-                              <span className="text-foreground/60">Warranty: </span>
-                              <span className="font-medium">{quote.warranty_period ?? "-"}</span>
-                            </div>
-                          </div>
-                          {quote.payment_terms && (
-                            <p className="text-sm text-foreground/60">
-                              <span className="text-foreground/60">Payment terms: </span>
-                              {quote.payment_terms}
+
+                          <div className="text-right shrink-0">
+                            <p className="text-xl font-bold text-primary leading-tight">
+                              {formatINR(quote.total_price)}
                             </p>
-                          )}
-                          {quote.notes && <p className="text-sm text-foreground/60 mt-1">{quote.notes}</p>}
-                          <div className="flex flex-wrap items-start gap-2 mt-3">
-                            {enquiry.status === "open" && quote.status === "submitted" && (
-                              <Button
-                                size="sm"
-                                disabled={acceptingId === quote.id}
-                                onClick={() => handleAccept(quote.id)}
-                              >
-                                {acceptingId === quote.id ? "Accepting..." : "Accept Quote"}
-                              </Button>
+                            <p className="text-[11px] text-foreground/45">
+                              ₹{Number(quote.total_price).toLocaleString("en-IN")}
+                            </p>
+                            {isLowest && !accepted && (
+                              <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-semibold text-[var(--reseda-green)]">
+                                <Trophy size={11} />
+                                Lowest quote
+                              </span>
                             )}
-                            <Link
-                              href={`/dashboard/buyer/messages?enquiry_id=${enquiry.id}&contact_id=${quote.seller_id}`}
-                            >
-                              <Button size="sm" variant="outline">
-                                <MessageSquare size={14} className="mr-1" />
-                                Message
-                              </Button>
-                            </Link>
-                            <SaveContactButton
-                              contactId={quote.seller_id}
-                              initialSaved={Boolean(quote.is_saved)}
-                              label="supplier"
-                            />
+                            {accepted && (
+                              <span className="block mt-1 text-xs font-semibold text-[var(--reseda-green)]">
+                                Accepted
+                              </span>
+                            )}
+                            {quote.status === "rejected" && (
+                              <span className="block mt-1 text-xs text-foreground/45">Not selected</span>
+                            )}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </Card>
-              </div>
 
-              {/* Sidebar */}
-              <div className="space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-lg font-semibold mb-4">Timeline</h2>
-                  <div className="space-y-4 text-sm">
-                    <div>
-                      <p className="text-foreground/60 mb-1">Quote Deadline</p>
-                      <p className="font-medium">
-                        {enquiry.quote_deadline ? new Date(enquiry.quote_deadline).toLocaleDateString() : "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-foreground/60 mb-1">Project Start</p>
-                      <p className="font-medium">
-                        {enquiry.project_start_date ? new Date(enquiry.project_start_date).toLocaleDateString() : "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-foreground/60 mb-1">Delivery By</p>
-                      <p className="font-medium">
-                        {enquiry.delivery_date ? new Date(enquiry.delivery_date).toLocaleDateString() : "-"}
-                      </p>
-                    </div>
+                        <dl className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm py-3 border-y border-border">
+                          <div>
+                            <dt className="text-foreground/55 text-xs">Delivery</dt>
+                            <dd className="font-medium">
+                              {quote.delivery_days ? `${quote.delivery_days} days` : "—"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-foreground/55 text-xs">Warranty</dt>
+                            <dd className="font-medium">{quote.warranty_period ?? "—"}</dd>
+                          </div>
+                          <div className="col-span-2 sm:col-span-1">
+                            <dt className="text-foreground/55 text-xs">Payment terms</dt>
+                            <dd className="font-medium text-[13px]">{quote.payment_terms ?? "—"}</dd>
+                          </div>
+                        </dl>
+
+                        {quote.notes && (
+                          <p className="text-sm text-foreground/65 mt-3 leading-relaxed">{quote.notes}</p>
+                        )}
+
+                        <div className="flex flex-wrap items-start gap-2 mt-4">
+                          {enquiry.status === "open" && quote.status === "submitted" && (
+                            <Button
+                              size="sm"
+                              disabled={acceptingId === quote.id}
+                              onClick={() => handleAccept(quote.id)}
+                            >
+                              {acceptingId === quote.id ? "Accepting..." : "Accept quote"}
+                            </Button>
+                          )}
+                          <Link
+                            href={`/dashboard/buyer/messages?enquiry_id=${enquiry.id}&contact_id=${quote.seller_id}`}
+                          >
+                            <Button size="sm" variant="outline">
+                              <MessageSquare size={14} className="mr-1.5" />
+                              Message
+                            </Button>
+                          </Link>
+                          <SaveContactButton
+                            contactId={quote.seller_id}
+                            initialSaved={Boolean(quote.is_saved)}
+                            label="supplier"
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </Card>
+          </div>
+
+          {/* Timeline */}
+          <aside className="space-y-4">
+            <Card className="p-5">
+              <h2 className="font-semibold mb-4">Timeline</h2>
+              <dl className="space-y-4 text-sm">
+                {[
+                  { label: "Quote deadline", value: enquiry.quote_deadline },
+                  { label: "Project start", value: enquiry.project_start_date },
+                  { label: "Delivery by", value: enquiry.delivery_date },
+                ].map((row) => (
+                  <div key={row.label}>
+                    <dt className="text-foreground/55 text-xs mb-0.5">{row.label}</dt>
+                    <dd className="font-medium">
+                      {row.value ? new Date(row.value).toLocaleDateString("en-IN") : "Not set"}
+                    </dd>
                   </div>
-                </Card>
-              </div>
-            </div>
-          )}
-        </main>
-      </div>
+                ))}
+              </dl>
+            </Card>
+
+            {quotes.length > 1 && (
+              <Card className="p-5">
+                <h2 className="font-semibold mb-3">At a glance</h2>
+                <dl className="space-y-2.5 text-sm">
+                  <div className="flex justify-between">
+                    <dt className="text-foreground/60">Quotes</dt>
+                    <dd className="font-semibold">{quotes.length}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-foreground/60">Lowest</dt>
+                    <dd className="font-semibold text-primary">
+                      {formatINR(Math.min(...quotes.map((q) => Number(q.total_price))))}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-foreground/60">Highest</dt>
+                    <dd className="font-semibold">
+                      {formatINR(Math.max(...quotes.map((q) => Number(q.total_price))))}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-border">
+                    <dt className="text-foreground/60">Spread</dt>
+                    <dd className="font-semibold">
+                      {formatINR(
+                        Math.max(...quotes.map((q) => Number(q.total_price))) -
+                          Math.min(...quotes.map((q) => Number(q.total_price)))
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+              </Card>
+            )}
+          </aside>
+        </div>
+      )}
     </DashboardLayout>
   )
 }

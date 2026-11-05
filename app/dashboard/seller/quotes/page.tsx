@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import DashboardLayout from "@/components/dashboard-layout"
+import CategoryImage from "@/components/category-image"
+import SaveContactButton from "@/components/save-contact-button"
 import { useSession } from "@/hooks/use-session"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import SaveContactButton from "@/components/save-contact-button"
-import { ArrowLeft, Search, MessageSquare } from "lucide-react"
+import { categoryLabel, formatINR } from "@/lib/categories"
+import { MapPin, MessageSquare, Search, Send } from "lucide-react"
 
 interface MyQuotation {
   id: string
@@ -18,24 +19,38 @@ interface MyQuotation {
   created_at: string
   enquiry_id: string
   enquiry_title: string
+  enquiry_status: string
+  category: string | null
+  city: string
+  state: string | null
   buyer_id: string
   buyer_name: string
   buyer_company: string | null
   is_saved: boolean
 }
 
-const STATUS_CLASS: Record<string, string> = {
-  accepted: "bg-green-500/10 text-green-600",
-  rejected: "bg-destructive/10 text-destructive",
-  submitted: "bg-accent/10 text-accent",
-  viewed: "bg-accent/10 text-accent",
+const STATUS_LABEL: Record<string, string> = {
+  submitted: "Awaiting decision",
+  viewed: "Viewed by buyer",
+  accepted: "Won",
+  rejected: "Not selected",
 }
+
+const STATUS_CLASS: Record<string, string> = {
+  accepted: "bg-[var(--reseda-green)]/15 text-[var(--reseda-green)]",
+  rejected: "bg-muted text-foreground/55",
+  submitted: "bg-primary/10 text-primary",
+  viewed: "bg-primary/10 text-primary",
+}
+
+const FILTERS = ["all", "submitted", "accepted", "rejected"] as const
 
 export default function SellerQuotesPage() {
   const { user, loading } = useSession()
   const [quotes, setQuotes] = useState<MyQuotation[]>([])
   const [loadingQuotes, setLoadingQuotes] = useState(true)
   const [search, setSearch] = useState("")
+  const [status, setStatus] = useState<(typeof FILTERS)[number]>("all")
 
   useEffect(() => {
     fetch("/api/my-quotations")
@@ -46,92 +61,150 @@ export default function SellerQuotesPage() {
 
   if (loading || !user) return null
 
-  const filtered = quotes.filter((q) => q.enquiry_title.toLowerCase().includes(search.toLowerCase()))
+  const term = search.trim().toLowerCase()
+  const filtered = quotes.filter(
+    (q) =>
+      (!term ||
+        q.enquiry_title.toLowerCase().includes(term) ||
+        (q.buyer_company ?? "").toLowerCase().includes(term)) &&
+      (status === "all" || q.status === status)
+  )
+
+  const won = quotes.filter((q) => q.status === "accepted").length
+  const value = quotes
+    .filter((q) => q.status === "accepted")
+    .reduce((sum, q) => sum + Number(q.total_price), 0)
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
-          <Link href="/dashboard/seller">
-            <button className="text-foreground/60 hover:text-foreground">
-              <ArrowLeft size={24} />
-            </button>
-          </Link>
-          <h1 className="text-2xl font-bold">My Quotes</h1>
-        </div>
-      </header>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">My Quotes</h1>
+        <p className="text-foreground/60 mt-1">
+          {quotes.length} submitted · {won} won
+          {won > 0 && <> · {formatINR(value)} in awarded work</>}
+        </p>
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search */}
-        <div className="mb-8 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60" size={20} />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search quotes..."
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+      <div className="mb-5 space-y-3">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" size={18} />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by requirement or buyer..."
+            className="w-full pl-10 pr-4 h-11 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
+          />
         </div>
 
-        {/* Quotes List */}
-        {loadingQuotes ? (
-          <p className="text-sm text-foreground/60">Loading...</p>
-        ) : filtered.length === 0 ? (
-          <p className="text-sm text-foreground/60">You haven't submitted any quotes yet.</p>
-        ) : (
-          <div className="space-y-4">
-            {filtered.map((quote) => (
-              <Card key={quote.id} className="p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{quote.enquiry_title}</h3>
-                    <p className="text-sm text-foreground/60">{quote.buyer_company || quote.buyer_name}</p>
-                    <p className="text-xs text-foreground/50 mt-1">
-                      Submitted: {new Date(quote.created_at).toLocaleDateString()}
+        <div className="flex flex-wrap gap-2">
+          {FILTERS.map((f) => {
+            const count = f === "all" ? quotes.length : quotes.filter((q) => q.status === f).length
+            return (
+              <button
+                key={f}
+                onClick={() => setStatus(f)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                  status === f
+                    ? "bg-[var(--jet-black)] text-primary-foreground border-[var(--jet-black)]"
+                    : "bg-card border-border hover:border-primary/60"
+                }`}
+              >
+                {f === "all" ? "All" : STATUS_LABEL[f]} ({count})
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {loadingQuotes ? (
+        <p className="text-foreground/60">Loading...</p>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-10 text-center">
+          <Send className="mx-auto mb-3 text-foreground/30" size={36} />
+          <h2 className="font-semibold text-lg mb-1">
+            {quotes.length === 0 ? "You haven't quoted yet" : "Nothing matches that filter"}
+          </h2>
+          <p className="text-sm text-foreground/60 max-w-md mx-auto mb-5">
+            {quotes.length === 0
+              ? "Open leads in your coverage area are waiting. Quoting is how buyers find you."
+              : "Try a different search term or status."}
+          </p>
+          {quotes.length === 0 && (
+            <Link href="/dashboard/seller/enquiries">
+              <Button size="sm">Browse available leads</Button>
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((quote) => (
+            <article
+              key={quote.id}
+              className="bg-card rounded-xl border border-border overflow-hidden flex flex-col sm:flex-row hover:border-primary/60 transition-colors"
+            >
+              <CategoryImage categoryKey={quote.category} className="w-full h-28 sm:w-32 sm:h-auto shrink-0" />
+
+              <div className="flex-1 p-4 sm:p-5 min-w-0">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[11px] uppercase tracking-wide text-[var(--reseda-green)] font-semibold mb-1">
+                      {categoryLabel(quote.category)}
+                    </p>
+                    <h2 className="font-semibold text-lg leading-snug">{quote.enquiry_title}</h2>
+                    <p className="text-sm text-foreground/60 mt-1 flex flex-wrap items-center gap-x-2">
+                      <span>{quote.buyer_company || quote.buyer_name}</span>
+                      <span className="text-foreground/30">·</span>
+                      <span className="flex items-center gap-1">
+                        <MapPin size={13} />
+                        {[quote.city, quote.state].filter(Boolean).join(", ")}
+                      </span>
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-primary">
-                      ₹{Number(quote.total_price).toLocaleString("en-IN")}
-                    </p>
+
+                  <div className="text-right shrink-0">
+                    <p className="text-lg font-bold text-primary leading-tight">{formatINR(quote.total_price)}</p>
                     <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 capitalize ${STATUS_CLASS[quote.status]}`}
+                      className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full mt-1.5 ${
+                        STATUS_CLASS[quote.status]
+                      }`}
                     >
-                      {quote.status}
+                      {STATUS_LABEL[quote.status]}
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-start gap-2">
-                  <Link href={`/dashboard/seller/enquiry/${quote.enquiry_id}`}>
-                    <Button variant="outline" size="sm" className="px-4 bg-transparent">
-                      View Enquiry
-                    </Button>
-                  </Link>
-                  <Link
-                    href={`/dashboard/seller/messages?enquiry_id=${quote.enquiry_id}&contact_id=${quote.buyer_id}`}
-                  >
-                    <Button variant="outline" size="sm">
-                      <MessageSquare size={14} className="mr-1" />
-                      Message
-                    </Button>
-                  </Link>
-                  <SaveContactButton
-                    contactId={quote.buyer_id}
-                    initialSaved={Boolean(quote.is_saved)}
-                    label="buyer"
-                  />
+
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 pt-3 border-t border-border text-xs text-foreground/60">
+                  {quote.delivery_days && <span>{quote.delivery_days} day delivery</span>}
+                  {quote.warranty_period && <span>{quote.warranty_period} warranty</span>}
+                  <span>Quoted {new Date(quote.created_at).toLocaleDateString("en-IN")}</span>
+
+                  <div className="ml-auto flex flex-wrap items-start gap-2">
+                    <Link href={`/dashboard/seller/enquiry/${quote.enquiry_id}`}>
+                      <Button variant="outline" size="sm">
+                        View requirement
+                      </Button>
+                    </Link>
+                    <Link
+                      href={`/dashboard/seller/messages?enquiry_id=${quote.enquiry_id}&contact_id=${quote.buyer_id}`}
+                    >
+                      <Button variant="outline" size="sm">
+                        <MessageSquare size={14} className="mr-1.5" />
+                        Message
+                      </Button>
+                    </Link>
+                    <SaveContactButton
+                      contactId={quote.buyer_id}
+                      initialSaved={Boolean(quote.is_saved)}
+                      label="buyer"
+                    />
+                  </div>
                 </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </DashboardLayout>
   )
 }
