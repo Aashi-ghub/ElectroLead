@@ -19,6 +19,23 @@ node scripts/ui-check.mjs https://electro-lead.vercel.app ./shots
 
 **Last full run against production: 51/51 API · 13/13 UI.**
 
+## Recording a client demo
+
+```bash
+npm run demo:seed      # reset the demo cast and enquiries
+npm run demo:record    # ~4 min narrated walkthrough -> demo-recording/*.mp4
+npm run demo:reset     # undo what the recording created
+```
+
+Drives the real deployed app — nothing is mocked. Produces one continuous
+H.264 MP4 (~4 MB) with an on-screen caption track, so it can be sent to a
+client and watched without a presenter. `DEMO_PACE=1` slows it down for a
+live walkthrough; `DEMO_PACE=0.5` tightens it into a sizzle reel.
+
+The recording covers: landing → buyer posts an enquiry → the geographic
+paywall across all three seller tiers → pricing → supplier quotes → buyer
+compares, messages, saves and awards → admin KYC, users, enquiries, revenue.
+
 > ⚠️ **Never run `npm test` against a database you care about.** The jest suite
 > `TRUNCATE`s every table. It now refuses to start unless `TEST_DATABASE_URL` is
 > set or the database name ends in `_test` — see `backend/tests/helpers/db.js`.

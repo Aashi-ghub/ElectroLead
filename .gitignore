@@ -84,3 +84,6 @@ tsconfig.tsbuildinfo
 # Local scratch: curl cookie jars and ad-hoc DB helpers from manual testing
 *.jar
 backend/_*.mjs
+
+# Demo recordings (large binaries - regenerate with scripts/demo-recording.mjs)
+demo-recording/
