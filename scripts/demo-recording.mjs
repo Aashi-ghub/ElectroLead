@@ -179,14 +179,19 @@ try {
   await say(page, 'VoltSupply', 'A B2B marketplace for electrical procurement in India.', 3600)
   await say(
     page,
-    'The problem',
-    'Buyers posting a requirement have no reliable way to reach verified suppliers nearby.',
-    4200
+    'Live, not a mockup',
+    'Every number on this page is queried from the platform: suppliers, cities, open requirements.',
+    4400
   )
-  await page.mouse.wheel(0, 500)
-  await page.waitForTimeout(beat(1800))
-  await page.mouse.wheel(0, 500)
-  await page.waitForTimeout(beat(1800))
+  await page.mouse.wheel(0, 650)
+  await page.waitForTimeout(beat(1400))
+  await say(page, 'Eight categories', 'Cable, switchgear, transformers, lighting, motors, solar and more.', 3800)
+  await page.mouse.wheel(0, 750)
+  await page.waitForTimeout(beat(1400))
+  await say(page, 'Open right now', 'Real requirements with real budgets, waiting on quotes today.', 4000)
+  await page.mouse.wheel(0, 800)
+  await page.waitForTimeout(beat(1400))
+  await say(page, 'Rated suppliers', 'Ratings, years trading and response times come from the platform, not a brochure.', 4200)
 
   // ---------------------------------------------------------- 2. buyer posts
   await say(page, 'Act 1 — The buyer', 'Priya Sharma runs procurement for an infrastructure contractor.', 3400)
@@ -194,9 +199,11 @@ try {
   await say(page, 'Buyer dashboard', 'Live counts from her own enquiries — active requirements, quotes received, budget posted.', 4200)
 
   await goto(page, '/dashboard/buyer/create-enquiry', 1200)
-  await say(page, 'Posting a requirement', 'A three-step wizard. Step one: what the project is.', 3000)
+  await say(page, 'Posting a requirement', 'Step one: what the project is, and which category it falls under.', 3400)
 
   await type(page, 'input[name="title"]', ENQUIRY_TITLE)
+  await page.selectOption('select[name="category"]', 'switchgear').catch(() => {})
+  await page.waitForTimeout(beat(700))
   await type(
     page,
     'textarea[name="description"]',
@@ -237,7 +244,8 @@ try {
   await say(page, 'Act 2 — The supplier', 'Rohit Mehta sells switchgear in Mumbai. He is on the free tier.', 3800)
   await signIn(page, ACCOUNTS.local)
   await goto(page, '/dashboard/seller/enquiries', 1500)
-  await say(page, 'Free tier', 'He sees leads in his own city only — Mumbai. Including the one just posted.', 4600)
+  await say(page, 'Free tier', 'He sees leads in his own city only — Mumbai. Including the one just posted.', 4200)
+  await say(page, 'And what he is missing', 'The banner states the limit plainly: Mumbai only, three quotes a month.', 4200)
 
   await signOut(page)
   await say(page, 'The same screen, a paid plan', 'Deepak Joshi in Pune is on the State plan.', 3400)
@@ -304,7 +312,13 @@ try {
   await page.waitForLoadState('networkidle').catch(() => {})
   await restoreCaption(page)
   await page.waitForTimeout(beat(2500))
-  await say(page, 'Comparing quotes', 'Price, delivery, warranty and terms side by side, with the supplier named.', 4400)
+  await say(page, 'Comparing quotes', 'Price, delivery, warranty and terms side by side, with the supplier named.', 4000)
+  await say(
+    page,
+    'Judging the supplier, not just the price',
+    'Rating, review count, years trading, typical response time, and a KYC badge on every quote.',
+    4600
+  )
 
   await say(page, 'Talking to the supplier', 'Messaging opens only once a supplier has quoted — no cold outreach.', 4000)
   const msgBtn = page.locator('a[href*="/messages?enquiry_id="]').first()
