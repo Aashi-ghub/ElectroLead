@@ -383,10 +383,14 @@ try {
     await click(page, save, 2000)
   }
 
-  await say(page, 'Awarding', 'Accepting a quote closes the enquiry and tells every other supplier where they stand.', 4200)
-  const accept = page.locator('button:has-text("Accept Quote")').first()
-  if (await accept.count()) {
-    await click(page, accept, 3200)
+  await say(page, 'Awarding', 'Awarding closes the enquiry and tells every other supplier where they stand.', 3800)
+  // Two clicks by design: the first arms the button and states the
+  // consequence, the second commits. Worth showing rather than editing out.
+  const award = page.locator('button:has-text("Award this quote")').first()
+  if (await award.count()) {
+    await click(page, award, 1800)
+    await say(page, 'It asks first', 'Awarding declines every other quote and cannot be undone, so it confirms.', 3600)
+    await click(page, page.locator('button:has-text("Confirm award")').first(), 3200)
   }
   await say(page, 'Awarded', 'The enquiry is closed. The loop is complete: post, discover, quote, negotiate, award.', 4600)
 
