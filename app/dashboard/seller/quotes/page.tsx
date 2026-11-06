@@ -75,15 +75,15 @@ export default function SellerQuotesPage() {
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">My Quotes</h1>
+      <div className="mb-5">
+        <h1 className="text-2xl font-bold">My Quotes</h1>
         <p className="text-foreground/60 mt-1">
           {quotes.length} submitted · {won} won
           {won > 0 && <> · {formatINR(value)} in awarded work</>}
         </p>
       </div>
 
-      <div className="mb-5 space-y-3">
+      <div className="mb-4 space-y-3">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" size={18} />
           <input

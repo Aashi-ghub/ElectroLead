@@ -11,8 +11,8 @@ export default function BuyerSavedPage() {
 
   return (
     <DashboardLayout userRole="buyer" userName={user.name} userEmail={user.email}>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Saved Suppliers</h1>
+      <div className="mb-5">
+        <h1 className="text-2xl font-bold">Saved Suppliers</h1>
         <p className="text-foreground/60 mt-1">Suppliers you have bookmarked from quotes you received</p>
       </div>
       <SavedContactsView

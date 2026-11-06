@@ -62,9 +62,9 @@ export default function EnquiriesPage() {
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
         <div>
-          <h1 className="text-3xl font-bold">My Enquiries</h1>
+          <h1 className="text-2xl font-bold">My Enquiries</h1>
           <p className="text-foreground/60 mt-1">Everything you have posted, and the quotes against it.</p>
         </div>
         <Link href="/dashboard/buyer/create-enquiry">
@@ -75,7 +75,7 @@ export default function EnquiriesPage() {
         </Link>
       </div>
 
-      <div className="mb-5 space-y-3">
+      <div className="mb-4 space-y-3">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" size={18} />
           <input

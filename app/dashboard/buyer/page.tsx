@@ -6,8 +6,9 @@ import DashboardLayout from "@/components/dashboard-layout"
 import CategoryImage from "@/components/category-image"
 import { useSession } from "@/hooks/use-session"
 import { Button } from "@/components/ui/button"
+import StatStrip from "@/components/stat-strip"
 import { categoryLabel, formatBudgetRange, formatINR } from "@/lib/categories"
-import { ArrowRight, BarChart3, Clock, FileText, MapPin, Plus, TrendingUp } from "lucide-react"
+import { ArrowRight, Clock, FileText, MapPin, Plus } from "lucide-react"
 
 interface Enquiry {
   id: string
@@ -57,17 +58,17 @@ export default function BuyerDashboard() {
   const needsAttention = [...open].sort((a, b) => Number(b.quote_count) - Number(a.quote_count))
 
   const stats = [
-    { label: "Open enquiries", value: String(open.length), icon: TrendingUp },
-    { label: "Quotes received", value: String(totalQuotes), icon: BarChart3 },
-    { label: "Awarded", value: String(awarded.length), icon: FileText },
-    { label: "Value out for quote", value: openValue > 0 ? formatINR(openValue) : "—", icon: BarChart3 },
+    { label: "Open enquiries", value: String(open.length) },
+    { label: "Quotes received", value: String(totalQuotes), accent: totalQuotes > 0 },
+    { label: "Awarded", value: String(awarded.length) },
+    { label: "Value out for quote", value: openValue > 0 ? formatINR(openValue) : "—" },
   ]
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
         <div>
-          <h1 className="text-3xl font-bold">{user.company_name || user.name}</h1>
+          <h1 className="text-2xl font-bold">{user.company_name || user.name}</h1>
           <p className="text-foreground/60 mt-1">
             {open.length > 0
               ? `${open.length} ${open.length === 1 ? "enquiry" : "enquiries"} out for quote`
@@ -82,21 +83,8 @@ export default function BuyerDashboard() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="p-5 bg-card rounded-xl border border-border hover:border-primary/60 transition-colors"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-xs text-foreground/60 mb-1.5 leading-snug">{stat.label}</p>
-                <p className="text-2xl lg:text-3xl font-bold text-primary">{stat.value}</p>
-              </div>
-              <stat.icon className="text-[var(--reseda-green)] shrink-0" size={26} />
-            </div>
-          </div>
-        ))}
+      <div className="mb-6">
+        <StatStrip stats={stats} />
       </div>
 
       <section>

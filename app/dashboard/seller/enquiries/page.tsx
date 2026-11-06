@@ -86,8 +86,8 @@ export default function SellerEnquiriesPage() {
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Available Leads</h1>
+      <div className="mb-5">
+        <h1 className="text-2xl font-bold">Available Leads</h1>
         <p className="text-foreground/60 mt-1">
           Open enquiries you can quote on, covering {scope}.
         </p>
@@ -96,7 +96,7 @@ export default function SellerEnquiriesPage() {
       {/* Plan banner. For a free seller this is the upgrade pitch, so it states
           plainly what they are not seeing rather than only what they are. */}
       <div
-        className={`mb-6 rounded-xl border p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 ${
+        className={`mb-5 rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center gap-4 ${
           subscription
             ? "bg-[var(--reseda-green)]/10 border-[var(--reseda-green)]/30"
             : "bg-primary/5 border-primary/25"
@@ -139,7 +139,7 @@ export default function SellerEnquiriesPage() {
       </div>
 
       {/* Filters */}
-      <div className="mb-5 space-y-3">
+      <div className="mb-4 space-y-3">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" size={18} />
           <input

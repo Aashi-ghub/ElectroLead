@@ -6,8 +6,9 @@ import DashboardLayout from "@/components/dashboard-layout"
 import CategoryImage from "@/components/category-image"
 import { useSession } from "@/hooks/use-session"
 import { Button } from "@/components/ui/button"
+import StatStrip from "@/components/stat-strip"
 import { categoryLabel, formatBudgetRange, formatINR } from "@/lib/categories"
-import { ArrowRight, Award, BarChart3, Globe2, MapPin, Send, TrendingUp } from "lucide-react"
+import { ArrowRight, Globe2, MapPin } from "lucide-react"
 
 interface SellerEnquiry {
   id: string
@@ -69,17 +70,17 @@ export default function SellerDashboard() {
   const scope = subscription ? PLAN_SCOPE[subscription.plan_type] ?? "your region" : "your city"
 
   const stats = [
-    { label: "Leads you can quote", value: String(unquoted.length), icon: TrendingUp },
-    { label: "Quotes submitted", value: String(quotes.length), icon: Send },
-    { label: "Win rate", value: acceptanceRate === null ? "—" : `${acceptanceRate}%`, icon: Award },
-    { label: "Value won", value: valueWon > 0 ? formatINR(valueWon) : "—", icon: BarChart3 },
+    { label: "Leads you can quote", value: String(unquoted.length), accent: unquoted.length > 0 },
+    { label: "Quotes submitted", value: String(quotes.length) },
+    { label: "Win rate", value: acceptanceRate === null ? "—" : `${acceptanceRate}%` },
+    { label: "Value won", value: valueWon > 0 ? formatINR(valueWon) : "—" },
   ]
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
         <div>
-          <h1 className="text-3xl font-bold">{user.company_name || user.name}</h1>
+          <h1 className="text-2xl font-bold">{user.company_name || user.name}</h1>
           <p className="text-foreground/60 mt-1 flex items-center gap-1.5">
             {subscription ? <Globe2 size={15} /> : <MapPin size={15} />}
             {subscription ? (
@@ -105,21 +106,8 @@ export default function SellerDashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="p-5 bg-card rounded-xl border border-border hover:border-primary/60 transition-colors"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-xs text-foreground/60 mb-1.5 leading-snug">{stat.label}</p>
-                <p className="text-2xl lg:text-3xl font-bold text-primary">{stat.value}</p>
-              </div>
-              <stat.icon className="text-[var(--reseda-green)] shrink-0" size={26} />
-            </div>
-          </div>
-        ))}
+      <div className="mb-6">
+        <StatStrip stats={stats} />
       </div>
 
       {/* Leads not yet quoted on: the one thing a supplier should act on today. */}
