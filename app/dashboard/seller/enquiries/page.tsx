@@ -89,7 +89,7 @@ export default function SellerEnquiriesPage() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Available Leads</h1>
         <p className="text-foreground/60 mt-1">
-          Open requirements you can quote on, covering {scope}.
+          Open enquiries you can quote on, covering {scope}.
         </p>
       </div>
 
@@ -198,7 +198,7 @@ export default function SellerEnquiriesPage() {
           </h2>
           <p className="text-sm text-foreground/60 max-w-md mx-auto">
             {enquiries.length === 0
-              ? "New requirements appear here the moment a buyer posts one in your coverage area."
+              ? "New enquiries appear here the moment a buyer posts one in your coverage area."
               : "Try a different search term or category."}
           </p>
           {enquiries.length === 0 && !subscription && (

@@ -100,19 +100,19 @@ export default function SellerEnquiryDetailPage() {
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
-      <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-card sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
-            <Link href="/dashboard/seller/enquiries">
-              <button className="text-foreground/60 hover:text-foreground">
-                <ArrowLeft size={24} />
-              </button>
-            </Link>
-            <h1 className="text-2xl font-bold">{enquiry?.title ?? "Enquiry"}</h1>
-          </div>
-        </header>
+      <div>
+        <div className="flex items-start gap-3 mb-5">
+          <Link
+            href="/dashboard/seller/enquiries"
+            aria-label="Back to leads"
+            className="mt-1 text-foreground/50 hover:text-foreground"
+          >
+            <ArrowLeft size={22} />
+          </Link>
+          <h1 className="text-2xl font-bold leading-tight">{enquiry?.title ?? "Lead"}</h1>
+        </div>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main>
           {loadingData ? (
             <p className="text-sm text-foreground/60">Loading...</p>
           ) : loadError || !enquiry ? (

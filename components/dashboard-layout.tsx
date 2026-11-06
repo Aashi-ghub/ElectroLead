@@ -103,7 +103,7 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
       ? "Settings"
       : pathname.includes("/enquiry/")
         ? userRole === "buyer"
-          ? "Requirement"
+          ? "Enquiry"
           : "Lead"
         : userRole === "buyer"
           ? "Buyer"
@@ -209,46 +209,49 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
             <LogOut size={18} className="flex-shrink-0" />
             {sidebarOpen && <span className="text-sm">Logout</span>}
           </button>
-
-          {/* User Profile Card */}
-          {sidebarOpen && (
-            <div className="mt-4 pt-4 border-t border-border/40">
-              <div className="flex items-center gap-3 px-2">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/20">
-                  <User size={18} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-primary-foreground truncate">{userName}</p>
-                  <p className="text-xs text-primary-foreground/60 truncate">{userEmail}</p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden bg-[var(--isabella)] text-foreground">
         {/* Top Bar */}
-        <div className="bg-[var(--isabella)] border-b border-border px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
-          <div>
-            {/* Was a static "Buyer Dashboard / Welcome back" on every screen,
-                so the only "where am I" cue was the sidebar highlight, and
-                each page then repeated its own title underneath. */}
-            <h2 className="text-lg font-semibold text-primary">{currentPageLabel}</h2>
-            <p className="text-sm text-foreground/60">
-              {userRole === "buyer" ? "Buyer" : "Supplier"} · {userName}
-            </p>
+        <div className="bg-[var(--isabella)] border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            {!sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Open menu"
+                className="p-2 -ml-2 hover:bg-muted rounded-lg transition-colors shrink-0"
+              >
+                <Menu size={20} className="text-primary" />
+              </button>
+            )}
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold text-foreground truncate">{currentPageLabel}</h2>
+              <p className="text-xs text-foreground/55">{userRole === "buyer" ? "Buyer" : "Supplier"}</p>
+            </div>
           </div>
-          {!sidebarOpen && (
-            <button
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Open menu"
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
-            >
-              <Menu size={20} className="text-primary" />
-            </button>
-          )}
+
+          {/* Who am I signed in as. Standard place for it, and it fills a top
+              bar that was otherwise a wide empty band. */}
+          <Link
+            href="/dashboard/settings"
+            className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-full hover:bg-muted transition-colors shrink-0"
+            title={userEmail}
+          >
+            <span className="w-8 h-8 rounded-full bg-[var(--jet-black)] text-primary-foreground flex items-center justify-center text-xs font-semibold shrink-0">
+              {userName
+                .split(" ")
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((w) => w[0]?.toUpperCase())
+                .join("")}
+            </span>
+            <span className="hidden sm:block text-left leading-tight">
+              <span className="block text-sm font-medium truncate max-w-[180px]">{userName}</span>
+              <span className="block text-[11px] text-foreground/55 truncate max-w-[180px]">{userEmail}</span>
+            </span>
+          </Link>
         </div>
 
         {/* Content Area */}

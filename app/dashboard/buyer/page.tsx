@@ -70,14 +70,14 @@ export default function BuyerDashboard() {
           <h1 className="text-3xl font-bold">{user.company_name || user.name}</h1>
           <p className="text-foreground/60 mt-1">
             {open.length > 0
-              ? `${open.length} requirement${open.length === 1 ? "" : "s"} out for quote`
+              ? `${open.length} ${open.length === 1 ? "enquiry" : "enquiries"} out for quote`
               : "Nothing out for quote right now"}
           </p>
         </div>
         <Link href="/dashboard/buyer/create-enquiry">
           <Button className="gap-1.5">
             <Plus size={16} />
-            Post a requirement
+            Post an enquiry
           </Button>
         </Link>
       </div>
@@ -103,7 +103,7 @@ export default function BuyerDashboard() {
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <h2 className="text-xl font-semibold">Waiting on your decision</h2>
-            <p className="text-sm text-foreground/60 mt-0.5">Open requirements, most-quoted first.</p>
+            <p className="text-sm text-foreground/60 mt-0.5">Open enquiries, most-quoted first.</p>
           </div>
           <Link
             href="/dashboard/buyer/enquiries"
@@ -128,7 +128,7 @@ export default function BuyerDashboard() {
             <Link href="/dashboard/buyer/create-enquiry">
               <Button size="sm" className="gap-1.5">
                 <Plus size={15} />
-                Post a requirement
+                Post an enquiry
               </Button>
             </Link>
           </div>

@@ -49,7 +49,7 @@ export default function RegisterPage() {
             </div>
             <div className="flex items-center gap-3 text-sm text-primary-foreground/70">
               <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px]">✓</div>
-              Every quote and message kept against the requirement
+              Every quote and message kept against the enquiry
             </div>
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function RegisterPage() {
                 <div className="px-2 py-1 bg-muted rounded-md text-[10px] font-bold uppercase tracking-wider text-muted-foreground group-hover:bg-secondary/20 group-hover:text-secondary transition-colors">Seller</div>
               </div>
               <h3 className="text-xl font-bold mb-1">Supplier Workspace</h3>
-              <p className="text-sm text-foreground/60">See requirements posted near you, submit quotes, and quote on the ones you want.</p>
+              <p className="text-sm text-foreground/60">See enquiries posted near you and quote on the ones you want.</p>
             </button>
           </div>
 

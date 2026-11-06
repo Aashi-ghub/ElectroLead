@@ -119,7 +119,7 @@ export default function SellerRegisterPage() {
                 Create your <span className="text-secondary">Seller</span> workspace.
               </h1>
               <p className="text-primary-foreground/60 text-lg leading-relaxed max-w-md">
-                See requirements posted near you and quote on the ones you want.
+                See enquiries posted near you and quote on the ones you want.
               </p>
             </div>
           </div>

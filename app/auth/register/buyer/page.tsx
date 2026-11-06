@@ -97,7 +97,7 @@ export default function BuyerRegisterPage() {
                 Create your <span className="text-primary">Buyer</span> workspace.
               </h1>
               <p className="text-primary-foreground/60 text-lg leading-relaxed max-w-md">
-                Post a requirement and compare quotes from verified suppliers.
+                Post an enquiry and compare quotes from verified suppliers.
               </p>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function BuyerRegisterPage() {
           <div className="relative z-10 grid grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-white/5 border border-white/10">
               <p className="text-[10px] uppercase tracking-widest text-primary-foreground/40 mb-1">Feature</p>
-              <p className="font-semibold text-sm">Post requirements</p>
+              <p className="font-semibold text-sm">Post enquiries</p>
             </div>
             <div className="p-4 rounded-xl bg-white/5 border border-white/10">
               <p className="text-[10px] uppercase tracking-widest text-primary-foreground/40 mb-1">Feature</p>

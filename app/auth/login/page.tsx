@@ -84,7 +84,7 @@ function LoginForm() {
                 Sign in to <span className="text-primary">VoltSupply</span>
               </h1>
               <p className="text-primary-foreground/60 text-lg max-w-md leading-relaxed">
-                Post requirements, compare quotes from verified suppliers, and award the work.
+                Post enquiries, compare quotes from verified suppliers, and award the work.
               </p>
             </div>
           </div>

@@ -110,23 +110,26 @@ export default function CreateEnquiryPage() {
 
   return (
     <DashboardLayout userRole={user.role as "buyer" | "seller" | "admin"} userName={user.name} userEmail={user.email}>
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
-          <button onClick={() => router.back()} className="text-foreground/60 hover:text-foreground">
-            <ArrowLeft size={24} />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold">Create New Enquiry</h1>
-            <p className="text-sm text-foreground/60">Step {step} of 3</p>
-          </div>
+    <div className="max-w-3xl">
+      <div className="flex items-start gap-3 mb-5">
+        <button
+          onClick={() => router.back()}
+          aria-label="Back"
+          className="mt-0.5 text-foreground/50 hover:text-foreground"
+        >
+          <ArrowLeft size={22} />
+        </button>
+        <div>
+          <h1 className="text-2xl font-bold leading-tight">Create Enquiry</h1>
+          <p className="text-sm text-foreground/60 mt-0.5">
+            Step {step} of 3 · suppliers covering your city will see this
+          </p>
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main>
         {/* Progress */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="w-full bg-border rounded-full h-2">
             <div
               className="bg-primary h-2 rounded-full transition-all duration-300"

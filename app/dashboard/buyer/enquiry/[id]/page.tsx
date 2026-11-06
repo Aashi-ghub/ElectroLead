@@ -149,7 +149,7 @@ export default function EnquiryDetailPage() {
                 <CategoryImage categoryKey={enquiry.category} className="w-full h-32 sm:w-40 sm:h-auto shrink-0" />
                 <div className="p-5 flex-1">
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <h2 className="text-lg font-semibold">Requirement</h2>
+                    <h2 className="text-lg font-semibold">Enquiry</h2>
                     <span
                       className={`text-xs font-medium px-2.5 py-1 rounded-full capitalize ${
                         STATUS_STYLE[enquiry.status] ?? "bg-muted"
@@ -194,7 +194,7 @@ export default function EnquiryDetailPage() {
 
               {quotes.length === 0 ? (
                 <p className="text-sm text-foreground/60 py-6 text-center">
-                  No quotes yet. Suppliers in {enquiry.city} are notified when a requirement opens.
+                  No quotes yet. Suppliers in {enquiry.city} are notified when an enquiry opens.
                 </p>
               ) : (
                 <div className="space-y-4">

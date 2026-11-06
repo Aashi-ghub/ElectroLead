@@ -127,7 +127,7 @@ export default function SellerDashboard() {
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <h2 className="text-xl font-semibold">Leads waiting on your quote</h2>
-            <p className="text-sm text-foreground/60 mt-0.5">Open requirements in {scope} you have not quoted on.</p>
+            <p className="text-sm text-foreground/60 mt-0.5">Open enquiries in {scope} you have not quoted on.</p>
           </div>
           <Link
             href="/dashboard/seller/enquiries"
@@ -147,7 +147,7 @@ export default function SellerDashboard() {
             </p>
             <p className="text-sm text-foreground/60">
               {leads.length === 0
-                ? "New requirements appear the moment a buyer posts one in your coverage area."
+                ? "New enquiries appear the moment a buyer posts one in your coverage area."
                 : "Nice work. New leads will show up here as buyers post them."}
             </p>
             {!subscription && (

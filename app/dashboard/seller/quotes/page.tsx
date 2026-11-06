@@ -90,7 +90,7 @@ export default function SellerQuotesPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by requirement or buyer..."
+            placeholder="Search by enquiry or buyer..."
             className="w-full pl-10 pr-4 h-11 rounded-lg border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
@@ -180,7 +180,7 @@ export default function SellerQuotesPage() {
                   <div className="ml-auto flex flex-wrap items-start gap-2">
                     <Link href={`/dashboard/seller/enquiry/${quote.enquiry_id}`}>
                       <Button variant="outline" size="sm">
-                        View requirement
+                        View enquiry
                       </Button>
                     </Link>
                     <Link

@@ -20,7 +20,7 @@ const PLANS = [
     // Premium Analytics and Email/Chat/Priority Support - none of which are
     // built, and there is no support channel to route anyone to.
     features: [
-      "See every requirement in your city",
+      "See every enquiry in your city",
       "Unlimited quotes",
       "Message buyers who you have quoted",
       "Verified supplier badge after KYC",
@@ -34,7 +34,7 @@ const PLANS = [
     period: "/month",
     description: "Buyers across your whole state",
     features: [
-      "Every requirement in your state",
+      "Every enquiry in your state",
       "Unlimited quotes",
       "Message buyers who you have quoted",
       "Verified supplier badge after KYC",
@@ -48,7 +48,7 @@ const PLANS = [
     period: "/month",
     description: "Buyers anywhere in India",
     features: [
-      "Every requirement in India",
+      "Every enquiry in India",
       "Unlimited quotes",
       "Message buyers who you have quoted",
       "Verified supplier badge after KYC",
@@ -106,16 +106,6 @@ export default function PricingPage() {
     <div className="min-h-screen bg-background">
       <Navigation />
       {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
-          <Link href="/">
-            <button className="text-foreground/60 hover:text-foreground">
-              <ArrowLeft size={24} />
-            </button>
-          </Link>
-          <h1 className="text-2xl font-bold">Pricing Plans</h1>
-        </div>
-      </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">

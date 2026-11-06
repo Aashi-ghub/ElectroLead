@@ -92,7 +92,7 @@ export default function Home() {
             </span>
 
             <h1 className="text-[40px] sm:text-[52px] font-semibold leading-[1.05] tracking-[-0.02em] text-[var(--jet-black)] mb-5">
-              Post a requirement.
+              Post an enquiry.
               <br />
               Get quotes from verified suppliers.
             </h1>
@@ -121,7 +121,7 @@ export default function Home() {
                 type="submit"
                 className="h-12 px-6 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-2 whitespace-nowrap"
               >
-                Post requirement
+                Post an enquiry
                 <ArrowRight size={17} />
               </button>
             </form>
@@ -150,7 +150,7 @@ export default function Home() {
                 {[
                   { value: stats.suppliers, label: "Verified suppliers" },
                   { value: stats.supplier_cities, label: "Cities covered" },
-                  { value: stats.open_enquiries, label: "Open requirements" },
+                  { value: stats.open_enquiries, label: "Open enquiries" },
                 ].map((s) => (
                   <div key={s.label} className="px-3 py-4 text-center">
                     <p className="text-2xl font-semibold text-primary">{s.value}</p>
@@ -176,7 +176,7 @@ export default function Home() {
             href="/auth/register/buyer"
             className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline whitespace-nowrap"
           >
-            Post a requirement
+            Post an enquiry
             <ArrowRight size={15} />
           </Link>
         </div>
@@ -217,7 +217,7 @@ export default function Home() {
               <div>
                 <h2 className="text-3xl font-semibold tracking-[-0.01em]">Open right now</h2>
                 <p className="text-foreground/60 mt-1.5">
-                  Live requirements buyers have posted. Suppliers on a matching plan can quote today.
+                  Live enquiries buyers have posted. Suppliers on a matching plan can quote today.
                 </p>
               </div>
               {stats && crore(stats.open_value) && (
@@ -373,7 +373,7 @@ export default function Home() {
               Selling electrical supply? Get the leads near you.
             </h2>
             <p className="text-primary-foreground/75 text-lg leading-relaxed mb-7">
-              List free and quote on requirements in your city. Upgrade to cover your whole state, or
+              List free and quote on enquiries in your city. Upgrade to cover your whole state, or
               all of India, and reach every buyer posting on the platform.
             </p>
             <div className="flex flex-wrap gap-3">
