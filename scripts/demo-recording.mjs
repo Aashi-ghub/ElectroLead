@@ -133,20 +133,35 @@ async function type(page, selector, value, delay = 40) {
 
 // ---------------------------------------------------------------- sessions
 
+// The story needs seven role switches, and nobody watching a demo wants to
+// see credentials typed seven times. Fill instantly and move on: the sign-in
+// is plumbing between scenes, not a scene. Only the first one is typed out,
+// so it is clear this is a real login rather than a cut.
+let signInCount = 0
+
 async function signIn(page, email, password = PASSWORD) {
   await page.goto(`${BASE}/auth/login`, { waitUntil: 'networkidle', timeout: 90000 })
   await restoreCaption(page)
-  await page.waitForTimeout(beat(600))
-  await type(page, 'input[type="email"]', email, 28)
-  await type(page, 'input[type="password"]', password, 28)
-  await page.waitForTimeout(beat(500))
+
+  const showTyping = signInCount++ === 0
+  if (showTyping) {
+    await page.waitForTimeout(beat(500))
+    await type(page, 'input[type="email"]', email, 26)
+    await type(page, 'input[type="password"]', password, 26)
+    await page.waitForTimeout(beat(400))
+  } else {
+    await page.fill('input[type="email"]', email)
+    await page.fill('input[type="password"]', password)
+    await page.waitForTimeout(350)
+  }
+
   await Promise.all([
     page.waitForURL((u) => !u.pathname.includes('/auth/login'), { timeout: 90000 }),
     page.click('button[type="submit"]'),
   ])
   await page.waitForLoadState('networkidle').catch(() => {})
   await restoreCaption(page)
-  await page.waitForTimeout(beat(1200))
+  await page.waitForTimeout(beat(showTyping ? 1200 : 700))
 }
 
 async function signOut(page) {
@@ -158,7 +173,7 @@ async function signOut(page) {
     await page.goto(`${BASE}/auth/login`, { waitUntil: 'networkidle' })
   }
   await restoreCaption(page)
-  await page.waitForTimeout(beat(800))
+  await page.waitForTimeout(beat(350))
 }
 
 // ------------------------------------------------------------------ record
