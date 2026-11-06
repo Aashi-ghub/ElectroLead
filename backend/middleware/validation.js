@@ -46,6 +46,10 @@ export const schemas = {
     otp: Joi.string().pattern(/^[0-9]{6}$/).required(),
   }),
 
+  forgotPassword: Joi.object({
+    email: Joi.string().email().required(),
+  }),
+
   resetPassword: Joi.object({
     email: Joi.string().email().required(),
     otp: Joi.string().pattern(/^[0-9]{6}$/).required(),

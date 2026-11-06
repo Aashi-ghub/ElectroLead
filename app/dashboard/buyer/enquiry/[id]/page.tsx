@@ -6,6 +6,7 @@ import Link from "next/link"
 import DashboardLayout from "@/components/dashboard-layout"
 import CategoryImage from "@/components/category-image"
 import SaveContactButton from "@/components/save-contact-button"
+import ConfirmButton from "@/components/confirm-button"
 import { useSession } from "@/hooks/use-session"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -299,13 +300,18 @@ export default function EnquiryDetailPage() {
 
                         <div className="flex flex-wrap items-start gap-2 mt-4">
                           {enquiry.status === "open" && quote.status === "submitted" && (
-                            <Button
-                              size="sm"
+                            <ConfirmButton
                               disabled={acceptingId === quote.id}
-                              onClick={() => handleAccept(quote.id)}
+                              onConfirm={() => handleAccept(quote.id)}
+                              confirmLabel="Confirm award"
+                              question={`This awards the work to ${
+                                quote.seller_company || quote.seller_name
+                              } and declines the other ${quotes.length - 1} quote${
+                                quotes.length === 2 ? "" : "s"
+                              }. It cannot be undone.`}
                             >
-                              {acceptingId === quote.id ? "Accepting..." : "Accept quote"}
-                            </Button>
+                              {acceptingId === quote.id ? "Accepting..." : "Award this quote"}
+                            </ConfirmButton>
                           )}
                           <Link
                             href={`/dashboard/buyer/messages?enquiry_id=${enquiry.id}&contact_id=${quote.seller_id}`}

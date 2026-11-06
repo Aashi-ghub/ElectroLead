@@ -11,7 +11,8 @@ export const getMarketplaceSummary = async (req, res) => {
     const [counts, categories, featured] = await Promise.all([
       pool.query(
         `SELECT
-           (SELECT COUNT(*)::int FROM users WHERE role = 'seller' AND is_active) AS suppliers,
+           (SELECT COUNT(*)::int FROM users
+             WHERE role = 'seller' AND is_active AND kyc_status = 'approved') AS suppliers,
            (SELECT COUNT(*)::int FROM users WHERE role = 'buyer' AND is_active) AS buyers,
            (SELECT COUNT(DISTINCT city)::int FROM users WHERE role = 'seller' AND city IS NOT NULL) AS supplier_cities,
            (SELECT COUNT(*)::int FROM enquiries WHERE status = 'open') AS open_enquiries,
@@ -29,7 +30,7 @@ export const getMarketplaceSummary = async (req, res) => {
         `SELECT company_name, city, state, category, rating, review_count,
                 years_in_business, response_hours, kyc_status
            FROM users
-          WHERE role = 'seller' AND is_active AND rating IS NOT NULL
+          WHERE role = 'seller' AND is_active AND kyc_status = 'approved' AND rating IS NOT NULL
           ORDER BY rating DESC, review_count DESC
           LIMIT 6`
       ),

@@ -59,7 +59,11 @@ export default function SellerDashboard() {
   if (loading || !user) return null
 
   const accepted = quotes.filter((q) => q.status === "accepted")
-  const acceptanceRate = quotes.length > 0 ? Math.round((accepted.length / quotes.length) * 100) : 0
+  // Win rate is only meaningful once a buyer has actually decided something.
+  // Dividing by every submitted quote showed "0%" to a seller whose only
+  // quote was still awaiting a decision, which reads as failure, not pending.
+  const decided = quotes.filter((q) => q.status === "accepted" || q.status === "rejected")
+  const acceptanceRate = decided.length > 0 ? Math.round((accepted.length / decided.length) * 100) : null
   const valueWon = accepted.reduce((sum, q) => sum + Number(q.total_price), 0)
   const unquoted = leads.filter((l) => Number(l.my_quote_count) === 0)
   const scope = subscription ? PLAN_SCOPE[subscription.plan_type] ?? "your region" : "your city"
@@ -67,7 +71,7 @@ export default function SellerDashboard() {
   const stats = [
     { label: "Leads you can quote", value: String(unquoted.length), icon: TrendingUp },
     { label: "Quotes submitted", value: String(quotes.length), icon: Send },
-    { label: "Win rate", value: quotes.length ? `${acceptanceRate}%` : "—", icon: Award },
+    { label: "Win rate", value: acceptanceRate === null ? "—" : `${acceptanceRate}%`, icon: Award },
     { label: "Value won", value: valueWon > 0 ? formatINR(valueWon) : "—", icon: BarChart3 },
   ]
 

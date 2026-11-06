@@ -15,8 +15,16 @@ const PLANS = [
     name: "Local",
     price: "₹2,000",
     period: "/month",
-    description: "Perfect for local businesses",
-    features: ["One City", "Unlimited quotes", "Basic Analytics", "Email Support"],
+    description: "Buyers in your city",
+    // Only capabilities that exist. The previous list promised Basic/Advanced/
+    // Premium Analytics and Email/Chat/Priority Support - none of which are
+    // built, and there is no support channel to route anyone to.
+    features: [
+      "See every requirement in your city",
+      "Unlimited quotes",
+      "Message buyers who you have quoted",
+      "Verified supplier badge after KYC",
+    ],
     cta: "Choose Local",
   },
   {
@@ -24,18 +32,27 @@ const PLANS = [
     name: "State",
     price: "₹6,000",
     period: "/month",
-    description: "Expand across your state",
-    features: ["Full State", "Unlimited quotes", "Advanced Analytics", "Chat Support"],
+    description: "Buyers across your whole state",
+    features: [
+      "Every requirement in your state",
+      "Unlimited quotes",
+      "Message buyers who you have quoted",
+      "Verified supplier badge after KYC",
+    ],
     cta: "Choose State",
-    popular: true,
   },
   {
     key: "national",
     name: "National",
     price: "₹15,000",
     period: "/month",
-    description: "Go all-India",
-    features: ["All India", "Unlimited quotes", "Premium Analytics", "Priority Support"],
+    description: "Buyers anywhere in India",
+    features: [
+      "Every requirement in India",
+      "Unlimited quotes",
+      "Message buyers who you have quoted",
+      "Verified supplier badge after KYC",
+    ],
     cta: "Choose National",
   },
 ]
@@ -120,7 +137,7 @@ export default function PricingPage() {
         {!loading && currentPlan && (
           <div className="mb-8 p-4 rounded-lg bg-primary/5 border border-primary/20 text-sm text-center">
             You're currently on the <strong className="capitalize">{currentPlan.plan_type}</strong> plan, active until{" "}
-            {new Date(currentPlan.end_date).toLocaleDateString()}.
+            {new Date(currentPlan.end_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}.
           </div>
         )}
 
@@ -132,12 +149,7 @@ export default function PricingPage() {
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {PLANS.map((plan) => (
-            <Card key={plan.key} className={`p-8 relative ${plan.popular ? "ring-2 ring-primary md:scale-105" : ""}`}>
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                  Most Popular
-                </div>
-              )}
+            <Card key={plan.key} className={`p-8 relative ${false /* no customers yet, so no "most popular" */ ? "ring-2 ring-primary md:scale-105" : ""}`}>
               <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
               <p className="text-foreground/60 text-sm mb-6">{plan.description}</p>
               <div className="mb-6">
@@ -146,7 +158,7 @@ export default function PricingPage() {
               </div>
               <Button
                 className="w-full mb-8"
-                variant={plan.popular ? "default" : "outline"}
+                variant={false /* no customers yet, so no "most popular" */ ? "default" : "outline"}
                 disabled={subscribingTo === plan.key || currentPlan?.plan_type === plan.key}
                 onClick={() => handleChoose(plan.key)}
               >

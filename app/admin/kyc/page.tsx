@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import ConfirmButton from "@/components/confirm-button"
 
 interface AdminUser {
   id: string
@@ -126,13 +127,15 @@ export default function AdminKycPage() {
                   >
                     Approve
                   </button>
-                  <button
-                    onClick={() => handleDecision(user.id, "reject")}
+                  <ConfirmButton
+                    variant="outline"
                     disabled={actioningId === user.id}
-                    className="btn-outline text-sm text-destructive disabled:opacity-60"
+                    onConfirm={() => handleDecision(user.id, "reject")}
+                    confirmLabel="Confirm reject"
+                    question="This blocks the supplier from quoting until they resubmit documents."
                   >
                     Reject
-                  </button>
+                  </ConfirmButton>
                 </div>
               </div>
 
@@ -154,7 +157,7 @@ export default function AdminKycPage() {
                           >
                             {doc.document_type}
                           </a>
-                          <span className="text-foreground/50"> • uploaded {new Date(doc.uploaded_at).toLocaleDateString()}</span>
+                          <span className="text-foreground/50"> • uploaded {new Date(doc.uploaded_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
                         </li>
                       ))}
                     </ul>

@@ -18,6 +18,7 @@ import {
   Send,
   MessageSquare,
   Bookmark,
+  Tag,
 } from "lucide-react"
 
 interface DashboardLayoutProps {
@@ -96,6 +97,18 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
 
   const menuItems = userRole === "buyer" ? buyerMenuItems : userRole === "seller" ? sellerMenuItems : []
 
+  const currentPageLabel =
+    menuItems.find((m) => pathname === m.href)?.label ??
+    (pathname.startsWith("/dashboard/settings")
+      ? "Settings"
+      : pathname.includes("/enquiry/")
+        ? userRole === "buyer"
+          ? "Requirement"
+          : "Lead"
+        : userRole === "buyer"
+          ? "Buyer"
+          : "Supplier")
+
   // Exact match only. A startsWith test lit "Dashboard" (/dashboard/buyer) on
   // every child route as well, so two items appeared selected at once on
   // nearly every page.
@@ -119,7 +132,13 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
       >
         {/* Logo/Header */}
         <div className="p-6 border-b border-border/40 flex items-center justify-between">
-          {sidebarOpen && <h1 className="text-xl font-semibold tracking-tight">VoltSupply</h1>}
+          {sidebarOpen && (
+            // The logo was an <h1>, so clicking it did nothing and there was
+            // no route from inside the app back to the public site at all.
+            <Link href="/" className="text-xl font-semibold tracking-tight hover:text-primary transition-colors">
+              VoltSupply
+            </Link>
+          )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-1 hover:bg-white/10 rounded-[6px] transition-colors"
@@ -173,6 +192,15 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
             {sidebarOpen && <span className="text-sm">Settings</span>}
           </Link>
 
+          {/* Back to the public site - previously unreachable from in-app. */}
+          <Link
+            href="/pricing"
+            className="flex items-center gap-3 px-4 py-2 rounded-lg text-primary-foreground/80 hover:bg-white/10 hover:text-primary-foreground transition-all"
+          >
+            <Tag size={18} className="flex-shrink-0" />
+            {sidebarOpen && <span className="text-sm">Plans &amp; pricing</span>}
+          </Link>
+
           {/* Logout */}
           <button
             onClick={handleLogout}
@@ -204,10 +232,13 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
         {/* Top Bar */}
         <div className="bg-[var(--isabella)] border-b border-border px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-primary">
-              {userRole === "buyer" ? "Buyer Dashboard" : "Supplier Dashboard"}
-            </h2>
-            <p className="text-sm text-foreground/60">Welcome back, {userName}!</p>
+            {/* Was a static "Buyer Dashboard / Welcome back" on every screen,
+                so the only "where am I" cue was the sidebar highlight, and
+                each page then repeated its own title underneath. */}
+            <h2 className="text-lg font-semibold text-primary">{currentPageLabel}</h2>
+            <p className="text-sm text-foreground/60">
+              {userRole === "buyer" ? "Buyer" : "Supplier"} · {userName}
+            </p>
           </div>
           {!sidebarOpen && (
             <button

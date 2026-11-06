@@ -18,7 +18,8 @@ function buildScopedQuery({ field, value, enquiryId, limit, offset }) {
   let listClause = "e.status = 'open'";
   if (field) {
     listParams.push(value);
-    listClause += ` AND ${field} = $${listParams.length + 1}`; // +1: $1 is reserved for seller id
+    // +1: $1 is reserved for seller id
+    listClause += ` AND LOWER(TRIM(${field})) = LOWER(TRIM($${listParams.length + 1}))`;
   }
   if (enquiryId) {
     listParams.push(enquiryId);
@@ -41,7 +42,7 @@ function buildScopedQuery({ field, value, enquiryId, limit, offset }) {
   let countClause = "e.status = 'open'";
   if (field) {
     countParams.push(value);
-    countClause += ` AND ${field} = $${countParams.length}`;
+    countClause += ` AND LOWER(TRIM(${field})) = LOWER(TRIM($${countParams.length}))`;
   }
   if (enquiryId) {
     countParams.push(enquiryId);

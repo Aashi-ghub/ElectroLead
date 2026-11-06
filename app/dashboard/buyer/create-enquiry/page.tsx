@@ -321,29 +321,32 @@ export default function CreateEnquiryPage() {
                   />
                 </div>
               </div>
-              <div className="space-y-3">
-                <label className="block text-sm font-medium">Timeline</label>
-                <input
-                  type="date"
-                  name="quoteDeadline"
-                  value={formData.quoteDeadline}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <input
-                  type="date"
-                  name="projectStart"
-                  value={formData.projectStart}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <input
-                  type="date"
-                  name="deliveryBy"
-                  value={formData.deliveryBy}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+              <div className="space-y-4">
+                <p className="block text-sm font-medium">Timeline</p>
+                {[
+                  {
+                    name: "quoteDeadline",
+                    label: "Last date to receive quotes",
+                    hint: "Suppliers see this as the deadline to respond.",
+                  },
+                  { name: "projectStart", label: "Project start date", hint: "Optional." },
+                  { name: "deliveryBy", label: "Delivery required by", hint: "Optional." },
+                ].map((field) => (
+                  <div key={field.name}>
+                    <label htmlFor={field.name} className="block text-sm mb-1">
+                      {field.label}
+                    </label>
+                    <input
+                      id={field.name}
+                      type="date"
+                      name={field.name}
+                      value={formData[field.name as "quoteDeadline" | "projectStart" | "deliveryBy"]}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <p className="text-xs text-foreground/50 mt-1">{field.hint}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}

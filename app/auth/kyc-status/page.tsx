@@ -96,9 +96,7 @@ export default function KYCStatusPage() {
           <Button onClick={() => router.push(data?.user?.role === "buyer" ? "/dashboard/buyer" : "/dashboard/seller")} className="px-6">
             Browse Marketplace
           </Button>
-          <Button variant="outline" className="px-6 bg-transparent">
-            Contact Support
-          </Button>
+          <a href="mailto:support@voltsupply.in" className="inline-flex items-center justify-center h-10 px-5 rounded-lg border border-border text-sm font-medium hover:bg-muted transition-colors">Email support</a>
         </div>
       </Card>
     </div>

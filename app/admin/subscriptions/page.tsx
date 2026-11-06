@@ -67,8 +67,8 @@ export default function AdminSubscriptionsPage() {
                       {sub.status}
                     </span>
                   </td>
-                  <td className="p-4">{new Date(sub.start_date).toLocaleDateString()}</td>
-                  <td className="p-4">{new Date(sub.end_date).toLocaleDateString()}</td>
+                  <td className="p-4">{new Date(sub.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
+                  <td className="p-4">{new Date(sub.end_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 </tr>
               ))}
             </tbody>

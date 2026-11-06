@@ -37,6 +37,12 @@ export async function getSellerScope(sellerId) {
  * Returns { allowed, reason } - reason is a message safe to show the seller.
  * Deliberately does not reveal where an out-of-scope enquiry actually is.
  */
+// City and state are free text on both sides of this comparison, so they are
+// normalised before matching: "mumbai", " Mumbai " and "MUMBAI" must all be
+// the same place. Without this a supplier silently sees nothing and is never
+// told why.
+const norm = (v) => (v ?? '').trim().toLowerCase();
+
 export async function canSellerQuoteOn(sellerId, enquiry) {
   const scope = await getSellerScope(sellerId);
 
@@ -46,7 +52,7 @@ export async function canSellerQuoteOn(sellerId, enquiry) {
     if (!scope.state) {
       return { allowed: false, reason: 'State not set in profile' };
     }
-    return scope.state === enquiry.state
+    return norm(scope.state) === norm(enquiry.state)
       ? { allowed: true }
       : {
           allowed: false,
@@ -58,7 +64,7 @@ export async function canSellerQuoteOn(sellerId, enquiry) {
   if (!scope.city) {
     return { allowed: false, reason: 'City not set in profile' };
   }
-  return scope.city === enquiry.city
+  return norm(scope.city) === norm(enquiry.city)
     ? { allowed: true }
     : {
         allowed: false,

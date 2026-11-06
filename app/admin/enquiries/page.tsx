@@ -66,7 +66,7 @@ export default function AdminEnquiriesPage() {
                     </span>
                   </td>
                   <td className="p-4">{enquiry.quote_count}</td>
-                  <td className="p-4">{new Date(enquiry.created_at).toLocaleDateString()}</td>
+                  <td className="p-4">{new Date(enquiry.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 </tr>
               ))}
             </tbody>

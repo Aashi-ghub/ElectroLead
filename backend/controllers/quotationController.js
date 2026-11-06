@@ -24,6 +24,20 @@ export const createQuotation = async (req, res) => {
       return res.status(400).json({ error: 'Enquiry is no longer accepting quotations' });
     }
 
+    // "Every supplier is KYC-checked before they can quote" is printed on the
+    // landing page. Nothing enforced it, so the platform's central trust
+    // claim was decorative. Enforced here rather than deleting the promise.
+    const kyc = await pool.query('SELECT kyc_status FROM users WHERE id = $1', [req.user.id]);
+    if (kyc.rows[0]?.kyc_status !== 'approved') {
+      return res.status(403).json({
+        error:
+          kyc.rows[0]?.kyc_status === 'rejected'
+            ? 'Your KYC was not approved. Please resubmit your documents before quoting.'
+            : 'Your account is pending KYC approval. You can quote once your documents are verified.',
+        kyc_status: kyc.rows[0]?.kyc_status ?? 'pending',
+      });
+    }
+
     // The paywall, enforced on the write side. Scoping only the lead listing
     // left this open: knowing an enquiry's UUID was enough for a free-tier
     // seller to quote on a national lead.

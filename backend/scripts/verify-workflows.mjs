@@ -85,13 +85,23 @@ const expect = (cond, detail) => (cond ? true : { ok: false, detail })
 
 // ---------------------------------------------------------------- sign in
 
-async function login(key, email, password = PASSWORD) {
-  const res = await req('POST', '/api/login', { body: { email, password } })
-  if (res.status !== 200 || !res.body?.token) {
-    throw new Error(`login failed for ${email}: ${res.status} ${JSON.stringify(res.body)}`)
+// Neon's pooler intermittently fails DNS, which surfaces here as a 500 from
+// an otherwise healthy backend. Retrying a sign-in is always safe, and without
+// it a whole 56-check run is lost to one transient lookup failure.
+async function login(key, email, password = PASSWORD, attempts = 4) {
+  let last
+  for (let i = 0; i < attempts; i++) {
+    const res = await req('POST', '/api/login', { body: { email, password } })
+    if (res.status === 200 && res.body?.token) {
+      tokens[key] = res.body.token
+      return res.body
+    }
+    last = res
+    // A 401 is a real answer; only transient server-side failures are worth retrying.
+    if (res.status === 401) break
+    await new Promise((r) => setTimeout(r, 2500))
   }
-  tokens[key] = res.body.token
-  return res.body
+  throw new Error(`login failed for ${email}: ${last?.status} ${JSON.stringify(last?.body)}`)
 }
 
 console.log(`\nVerifying ${BASE}\n${'='.repeat(70)}\n`)

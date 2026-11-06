@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import DashboardLayout from "@/components/dashboard-layout"
 import { useSession } from "@/hooks/use-session"
+import { formatBudgetRange } from "@/lib/categories"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
@@ -147,7 +148,7 @@ export default function SellerEnquiryDetailPage() {
                       <span className="text-foreground/60">Budget</span>
                       <span className="font-medium">
                         {enquiry.budget_min || enquiry.budget_max
-                          ? `₹${enquiry.budget_min ?? "?"} - ₹${enquiry.budget_max ?? "?"}`
+                          ? formatBudgetRange(enquiry.budget_min, enquiry.budget_max)
                           : "Not set"}
                       </span>
                     </div>
@@ -262,7 +263,7 @@ export default function SellerEnquiryDetailPage() {
                     <div>
                       <p className="text-foreground/60 mb-1">Quote Deadline</p>
                       <p className="font-medium">
-                        {enquiry.quote_deadline ? new Date(enquiry.quote_deadline).toLocaleDateString() : "-"}
+                        {enquiry.quote_deadline ? new Date(enquiry.quote_deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "-"}
                       </p>
                     </div>
                   </div>

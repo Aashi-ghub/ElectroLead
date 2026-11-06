@@ -31,7 +31,6 @@ interface MyQuotation {
 
 const STATUS_LABEL: Record<string, string> = {
   submitted: "Awaiting decision",
-  viewed: "Viewed by buyer",
   accepted: "Won",
   rejected: "Not selected",
 }
@@ -40,7 +39,6 @@ const STATUS_CLASS: Record<string, string> = {
   accepted: "bg-[var(--reseda-green)]/15 text-[var(--reseda-green)]",
   rejected: "bg-muted text-foreground/55",
   submitted: "bg-primary/10 text-primary",
-  viewed: "bg-primary/10 text-primary",
 }
 
 const FILTERS = ["all", "submitted", "accepted", "rejected"] as const

@@ -112,6 +112,43 @@ export const verifyOtp = async (req, res) => {
 };
 
 // POST /api/reset-password
+// POST /api/forgot-password
+// The reset flow had no way to START: resetPassword wanted an OTP, but
+// nothing ever generated or sent one, and the login page's "Forgot?" link
+// pointed at "#". A forgotten password meant a permanently locked-out user.
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const result = await pool.query('SELECT id FROM users WHERE email = $1 AND is_active', [email]);
+
+    // Always answer the same way. Telling an anonymous caller whether an
+    // address is registered turns this into an account-enumeration oracle.
+    if (result.rows.length > 0) {
+      const otp = generateOTP();
+      await storeOTP(result.rows[0].id, await hashOTP(otp));
+
+      // Fire-and-forget: a slow or unreachable mail provider must not hold
+      // the response open or reveal delivery success to the caller.
+      sendOTPEmail(
+        email,
+        otp,
+        'VoltSupply - Reset your password',
+        `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
+           <h2>Reset your password</h2>
+           <p>Your code is: <strong style="font-size:24px;letter-spacing:4px">${otp}</strong></p>
+           <p>It is valid for 10 minutes. If you did not ask to reset your password, ignore this email.</p>
+         </div>`
+      ).catch((err) => console.error('Reset email failed:', err.message));
+    }
+
+    res.json({ message: 'If that email is registered, we have sent a reset code to it.' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Could not start password reset' });
+  }
+};
+
 export const resetPassword = async (req, res) => {
   try {
     const { email, otp, new_password } = req.body;

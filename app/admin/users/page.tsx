@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import ConfirmButton from "@/components/confirm-button"
 
 interface AdminUser {
   id: string
@@ -105,13 +106,25 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="p-4">{user.is_active ? "Active" : "Suspended"}</td>
                   <td className="p-4">
-                    <button
-                      onClick={() => toggleSuspend(user)}
-                      disabled={actioningId === user.id}
-                      className="btn-outline text-xs disabled:opacity-60"
-                    >
-                      {user.is_active ? "Suspend" : "Activate"}
-                    </button>
+                    {user.is_active ? (
+                      <ConfirmButton
+                        variant="outline"
+                        disabled={actioningId === user.id}
+                        onConfirm={() => toggleSuspend(user)}
+                        confirmLabel="Confirm suspend"
+                        question="They will be signed out immediately and unable to log back in."
+                      >
+                        Suspend
+                      </ConfirmButton>
+                    ) : (
+                      <button
+                        onClick={() => toggleSuspend(user)}
+                        disabled={actioningId === user.id}
+                        className="btn-outline text-xs disabled:opacity-60"
+                      >
+                        Activate
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

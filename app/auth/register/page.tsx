@@ -45,11 +45,11 @@ export default function RegisterPage() {
           <div className="relative z-10 space-y-4">
             <div className="flex items-center gap-3 text-sm text-primary-foreground/70">
               <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px]">✓</div>
-              Verified industrial ecosystem
+              GST and PAN checked before suppliers can quote
             </div>
             <div className="flex items-center gap-3 text-sm text-primary-foreground/70">
               <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px]">✓</div>
-              Compliance-ready audit trails
+              Every quote and message kept against the requirement
             </div>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function RegisterPage() {
                 <div className="px-2 py-1 bg-muted rounded-md text-[10px] font-bold uppercase tracking-wider text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary transition-colors">Buyer</div>
               </div>
               <h3 className="text-xl font-bold mb-1">Procurement Workspace</h3>
-              <p className="text-sm text-foreground/60">Post RFQs, manage supplier bids, and track orders in one dashboard.</p>
+              <p className="text-sm text-foreground/60">Post what you need, compare quotes side by side, and award the work.</p>
             </button>
 
             <button
@@ -83,7 +83,7 @@ export default function RegisterPage() {
                 <div className="px-2 py-1 bg-muted rounded-md text-[10px] font-bold uppercase tracking-wider text-muted-foreground group-hover:bg-secondary/20 group-hover:text-secondary transition-colors">Seller</div>
               </div>
               <h3 className="text-xl font-bold mb-1">Supplier Workspace</h3>
-              <p className="text-sm text-foreground/60">Receive qualified leads, submit quotes, and build your digital reputation.</p>
+              <p className="text-sm text-foreground/60">See requirements posted near you, submit quotes, and quote on the ones you want.</p>
             </button>
           </div>
 
