@@ -90,7 +90,10 @@ async function upsertSubscription(client, userId, plan) {
   // silently drops to free tier because a date rolled past.
   await client.query('DELETE FROM subscriptions WHERE user_id = $1', [userId])
   if (!plan) return
-  const amount = { local: 2499, state: 4999, national: 9999 }[plan]
+  // Must match the published prices on /pricing. These were 2499/4999/9999
+  // while the pricing page advertised 2000/6000/15000, so the admin
+  // subscriptions table contradicted the price list in front of the customer.
+  const amount = { local: 2000, state: 6000, national: 15000 }[plan]
   await client.query(
     `INSERT INTO subscriptions (user_id, plan_type, amount_paid, status, start_date, end_date, razorpay_payment_id)
      VALUES ($1, $2, $3, 'active', CURRENT_DATE, CURRENT_DATE + INTERVAL '365 days', $4)`,

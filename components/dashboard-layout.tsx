@@ -33,7 +33,24 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children, userRole, userName, userEmail }: DashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  // Open on desktop, closed on phones. Hard-coding `true` left a 256px
+  // sidebar pinned over a 390px viewport, so the app was unusable on a phone.
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)")
+    const apply = () => setSidebarOpen(mq.matches)
+    apply()
+    mq.addEventListener("change", apply)
+    return () => mq.removeEventListener("change", apply)
+  }, [])
+
+  // On a phone the sidebar is an overlay drawer, so navigating should close it.
+  const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches
+  const closeOnMobile = () => {
+    if (!window.matchMedia("(min-width: 1024px)").matches) setSidebarOpen(false)
+  }
+  void isDesktop
   const [unread, setUnread] = useState(0)
 
   const handleLogout = async () => {
@@ -79,15 +96,26 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
 
   const menuItems = userRole === "buyer" ? buyerMenuItems : userRole === "seller" ? sellerMenuItems : []
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/")
+  // Exact match only. A startsWith test lit "Dashboard" (/dashboard/buyer) on
+  // every child route as well, so two items appeared selected at once on
+  // nearly every page.
+  const isActive = (href: string) => pathname === href
 
   return (
     <div className="flex h-screen bg-[var(--jet-black)] text-primary-foreground">
       {/* Sidebar */}
+      {sidebarOpen && (
+        <button
+          aria-label="Close menu"
+          onClick={() => setSidebarOpen(false)}
+          className="lg:hidden fixed inset-0 z-40 bg-black/50"
+        />
+      )}
+
       <div
-        className={`${
-          sidebarOpen ? "w-64" : "w-20"
-        } bg-secondary text-primary-foreground transition-all duration-300 flex flex-col overflow-hidden border-r border-border`}
+        className={`${sidebarOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full lg:w-20 lg:translate-x-0"}
+          fixed lg:static inset-y-0 left-0 z-50
+          bg-secondary text-primary-foreground transition-all duration-300 flex flex-col overflow-hidden border-r border-border`}
       >
         {/* Logo/Header */}
         <div className="p-6 border-b border-border/40 flex items-center justify-between">
@@ -109,12 +137,16 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                onClick={closeOnMobile}
+                className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                   active
-                    ? "bg-primary text-primary-foreground font-medium border border-primary"
-                    : "text-primary-foreground/70 hover:bg-white/5 hover:text-primary-foreground border border-transparent"
+                    ? "bg-white/10 text-primary font-medium"
+                    : "text-primary-foreground/70 hover:bg-white/5 hover:text-primary-foreground"
                 }`}
               >
+                {active && (
+                  <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r bg-primary" aria-hidden="true" />
+                )}
                 <Icon size={20} className="flex-shrink-0" />
                 {sidebarOpen && <span className="text-sm flex-1">{item.label}</span>}
                 {"badge" in item && Number(item.badge) > 0 && (
@@ -170,7 +202,7 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden bg-[var(--isabella)] text-foreground">
         {/* Top Bar */}
-        <div className="bg-[var(--isabella)] border-b border-border px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--isabella)] border-b border-border px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-primary">
               {userRole === "buyer" ? "Buyer Dashboard" : "Supplier Dashboard"}
@@ -178,7 +210,11 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
             <p className="text-sm text-foreground/60">Welcome back, {userName}!</p>
           </div>
           {!sidebarOpen && (
-            <button onClick={() => setSidebarOpen(true)} className="p-2 hover:bg-muted rounded-lg transition-colors">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open menu"
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+            >
               <Menu size={20} className="text-primary" />
             </button>
           )}
@@ -186,7 +222,7 @@ export default function DashboardLayout({ children, userRole, userName, userEmai
 
         {/* Content Area */}
         <div className="flex-1 overflow-auto">
-          <div className="p-6">{children}</div>
+          <div className="p-4 sm:p-6">{children}</div>
         </div>
       </div>
     </div>

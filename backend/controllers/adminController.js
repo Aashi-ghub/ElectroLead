@@ -59,7 +59,8 @@ export const approveKyc = async (req, res) => {
     const kycStatus = action === 'approve' ? 'approved' : 'rejected';
 
     const result = await pool.query(
-      'UPDATE users SET kyc_status = $1 WHERE id = $2 RETURNING *',
+      `UPDATE users SET kyc_status = $1 WHERE id = $2
+       RETURNING id, email, name, role, company_name, city, state, kyc_status, is_active`,
       [kycStatus, id]
     );
 
@@ -152,7 +153,8 @@ export const suspendUser = async (req, res) => {
     const isActive = action === 'activate';
 
     const result = await pool.query(
-      'UPDATE users SET is_active = $1 WHERE id = $2 RETURNING *',
+      `UPDATE users SET is_active = $1 WHERE id = $2
+       RETURNING id, email, name, role, company_name, city, state, kyc_status, is_active`,
       [isActive, id]
     );
 

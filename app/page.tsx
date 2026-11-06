@@ -272,7 +272,7 @@ export default function Home() {
         <section className="max-w-7xl mx-auto px-6 lg:px-10 py-16 lg:py-20">
           <h2 className="text-3xl font-semibold tracking-[-0.01em] mb-1.5">Top-rated suppliers</h2>
           <p className="text-foreground/60 mb-8">
-            Rated by the buyers who actually bought from them.
+            Suppliers with the strongest track record on the platform.
           </p>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

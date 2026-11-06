@@ -106,9 +106,15 @@ export default function PricingPage() {
           <p className="text-lg text-foreground/60 max-w-2xl mx-auto">
             Choose the plan that fits the region you want to sell in.
           </p>
-          <div className="mt-4 inline-block px-4 py-2 rounded-lg bg-accent/10 text-accent text-sm font-medium">
-            Test mode — checkout is a placeholder until Razorpay live keys are configured. No real payment is taken.
-          </div>
+          {/* Shown only while checkout really is a placeholder. Gating it on
+              the key means it disappears by itself the moment Razorpay is
+              configured - rather than being a hardcoded line someone has to
+              remember to delete, or worse, hides a fact that is still true. */}
+          {!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID && (
+            <div className="mt-4 inline-block px-4 py-2 rounded-lg bg-accent/10 text-accent text-sm font-medium">
+              Payments are not live yet — no card is charged.
+            </div>
+          )}
         </div>
 
         {!loading && currentPlan && (
@@ -163,7 +169,6 @@ export default function PricingPage() {
         </div>
 
         <div className="text-center">
-          <p className="text-foreground/60 mb-4">All plans include 7-day money-back guarantee</p>
           <Link href="/auth/register">
             <Button size="lg">Get Started Free</Button>
           </Link>

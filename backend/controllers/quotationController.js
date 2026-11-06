@@ -1,5 +1,6 @@
 import pool from '../config/database.js';
 import { notifyBuyerNewQuotation } from '../utils/notifications.js';
+import { canSellerQuoteOn } from '../utils/sellerScope.js';
 
 // POST /api/enquiries/:id/quote (Seller only)
 export const createQuotation = async (req, res) => {
@@ -9,7 +10,7 @@ export const createQuotation = async (req, res) => {
 
     // Verify enquiry exists and is open
     const enquiryResult = await pool.query(
-      'SELECT id, buyer_id, title, status FROM enquiries WHERE id = $1',
+      'SELECT id, buyer_id, title, status, city, state FROM enquiries WHERE id = $1',
       [enquiryId]
     );
 
@@ -21,6 +22,14 @@ export const createQuotation = async (req, res) => {
 
     if (enquiry.status !== 'open') {
       return res.status(400).json({ error: 'Enquiry is no longer accepting quotations' });
+    }
+
+    // The paywall, enforced on the write side. Scoping only the lead listing
+    // left this open: knowing an enquiry's UUID was enough for a free-tier
+    // seller to quote on a national lead.
+    const scope = await canSellerQuoteOn(req.user.id, enquiry);
+    if (!scope.allowed) {
+      return res.status(403).json({ error: scope.reason });
     }
 
     // Check if seller already submitted a quote (prevent duplicates)

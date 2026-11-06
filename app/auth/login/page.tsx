@@ -78,27 +78,22 @@ function LoginForm() {
 
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-primary uppercase tracking-wider">
-                Industrial Control Room
+                B2B Electrical Supply · India
               </div>
               <h1 className="text-4xl sm:text-5xl font-bold leading-tight">
-                Sign in to your <span className="text-primary">control room.</span>
+                Sign in to <span className="text-primary">VoltSupply</span>
               </h1>
               <p className="text-primary-foreground/60 text-lg max-w-md leading-relaxed">
-                The centralized hub for industrial procurement and verified supply chain operations.
+                Post requirements, compare quotes from verified suppliers, and award the work.
               </p>
             </div>
           </div>
 
-          <div className="relative z-10 grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-              <p className="text-[10px] uppercase tracking-widest text-primary-foreground/40 mb-1">Standard</p>
-              <p className="font-semibold text-sm">99.9% Uptime</p>
-            </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-              <p className="text-[10px] uppercase tracking-widest text-primary-foreground/40 mb-1">Support</p>
-              <p className="font-semibold text-sm">24/7 Priority</p>
-            </div>
-          </div>
+          {/* No uptime or support-tier tiles here. They previously read
+              "99.9% Uptime" and "24/7 Priority" - commitments this product
+              has never been in a position to make, on infrastructure that
+              cold-starts. Nothing goes in this slot until it is a promise
+              the business has actually decided to keep. */}
         </div>
 
         {/* Right Side: Form */}

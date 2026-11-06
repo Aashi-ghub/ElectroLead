@@ -292,6 +292,64 @@ await check('D9', 'Seller cannot read an out-of-scope enquiry by id', async () =
   return expect((res.body?.enquiries ?? []).length === 0, 'out-of-scope enquiry was returned')
 })
 
+// Regression guards for two live findings: the paywall was enforced only when
+// listing leads, not when quoting, and admin writes returned password_hash.
+await check('D6b', 'Free-tier seller cannot QUOTE outside their city', async () => {
+  const national = await req('GET', '/api/enquiries?limit=20', { token: tokens.sellerNational })
+  const outOfScope = (national.body?.enquiries ?? []).find((e) => e.city !== 'Mumbai')
+  if (!outOfScope) return { skip: true, detail: 'no out-of-city enquiry in seed data' }
+
+  const res = await req('POST', `/api/enquiries/${outOfScope.id}/quote`, {
+    token: tokens.sellerLocal,
+    body: { total_price: 101010 },
+  })
+  return expect(res.status === 403, `expected 403, got ${res.status} (quote may have been created)`)
+})
+
+await check('D6c', 'State-plan seller cannot QUOTE outside their state', async () => {
+  const national = await req('GET', '/api/enquiries?limit=20', { token: tokens.sellerNational })
+  const outOfState = (national.body?.enquiries ?? []).find((e) => e.state !== 'Maharashtra')
+  if (!outOfState) return { skip: true, detail: 'no out-of-state enquiry in seed data' }
+
+  const res = await req('POST', `/api/enquiries/${outOfState.id}/quote`, {
+    token: tokens.sellerState,
+    body: { total_price: 202020 },
+  })
+  return expect(res.status === 403, `expected 403, got ${res.status}`)
+})
+
+await check('F8', 'Admin writes never return password or OTP hashes', async () => {
+  const users = await req('GET', '/admin/users?limit=1', { token: tokens.admin })
+  const target = users.body?.users?.[0]
+  if (!target) return { skip: true, detail: 'no users returned' }
+
+  const suspend = await req('POST', `/admin/users/${target.id}/suspend`, { token: tokens.admin, body: {} })
+  await req('POST', `/admin/users/${target.id}/suspend`, { token: tokens.admin, body: {} }) // revert
+
+  const keys = Object.keys(suspend.body?.user ?? {})
+  const leaked = keys.filter((k) => k.includes('password') || k.includes('otp'))
+  return expect(leaked.length === 0, `leaked: ${leaked.join(', ')}`)
+})
+
+await check('H4', 'Oversized numbers are rejected, not crashed on', async () => {
+  const res = await req('POST', '/api/enquiries', {
+    token: tokens.buyer,
+    body: { title: `Overflow probe ${RUN}`, city: 'Mumbai', budget_max: 1000000000000 },
+  })
+  if (res.status === 201 && res.body?.enquiry?.id) {
+    await req('DELETE', `/api/enquiries/${res.body.enquiry.id}`, { token: tokens.buyer })
+  }
+  return expect(res.status === 400, `expected 400 validation error, got ${res.status}`)
+})
+
+await check('H5', 'A malformed id returns 400/404, not a 500', async () => {
+  const res = await req('POST', '/api/enquiries/not-a-uuid/quote', {
+    token: tokens.sellerNational,
+    body: { total_price: 50000 },
+  })
+  return expect(res.status === 400 || res.status === 404, `expected 400/404, got ${res.status}`)
+})
+
 await check('D10', 'Seller can submit a quote', async () => {
   const res = await req('POST', `/api/enquiries/${createdEnquiryId}/quote`, {
     token: tokens.sellerLocal,

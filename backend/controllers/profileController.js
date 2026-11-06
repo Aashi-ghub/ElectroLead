@@ -99,7 +99,12 @@ export const updateProfile = async (req, res) => {
     }
 
     values.push(req.user.id);
-    const query = `UPDATE users SET ${updateFields.join(', ')} WHERE id = $${paramCount} RETURNING *`;
+    // Never RETURNING * on users: the row carries password_hash and otp_hash,
+    // and this response goes straight to the browser. Mirrors getProfile.
+    const query = `UPDATE users SET ${updateFields.join(', ')} WHERE id = $${paramCount}
+       RETURNING id, email, name, phone, role, city, state, company_name,
+                 gst_number, pan_number, kyc_status, category, about,
+                 rating, review_count, years_in_business, response_hours, created_at`;
     const result = await pool.query(query, values);
 
     res.json({ message: 'Profile updated successfully', user: result.rows[0] });

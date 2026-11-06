@@ -2,6 +2,7 @@ import express from 'express';
 import { createEnquiry, getMyEnquiries, getEnquiryById, deleteEnquiry } from '../controllers/enquiryController.js';
 import { getEnquiryQuotations } from '../controllers/quotationController.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
+import { validateUuidParam } from '../middleware/validateParams.js';
 import { validate, schemas } from '../middleware/validation.js';
 
 const router = express.Router();
@@ -12,9 +13,9 @@ const router = express.Router();
 // Express can fall through to the other router.
 router.post('/', authenticate, requireRole('buyer'), validate(schemas.createEnquiry), createEnquiry);
 router.get('/my-enquiries', authenticate, requireRole('buyer'), getMyEnquiries);
-router.get('/:id/quotations', authenticate, requireRole('buyer'), getEnquiryQuotations);
-router.get('/:id', authenticate, requireRole('buyer'), getEnquiryById);
-router.delete('/:id', authenticate, requireRole('buyer'), deleteEnquiry);
+router.get('/:id/quotations', authenticate, requireRole('buyer'), validateUuidParam('id'), getEnquiryQuotations);
+router.get('/:id', authenticate, requireRole('buyer'), validateUuidParam('id'), getEnquiryById);
+router.delete('/:id', authenticate, requireRole('buyer'), validateUuidParam('id'), deleteEnquiry);
 
 export default router;
 

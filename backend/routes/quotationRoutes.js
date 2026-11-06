@@ -1,16 +1,17 @@
 import express from 'express';
 import { createQuotation, getMyQuotations, acceptQuotation } from '../controllers/quotationController.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
+import { validateUuidParam } from '../middleware/validateParams.js';
 import { validate, schemas } from '../middleware/validation.js';
 
 const router = express.Router();
 
 // Seller routes
-router.post('/enquiries/:id/quote', authenticate, requireRole('seller'), validate(schemas.createQuotation), createQuotation);
+router.post('/enquiries/:id/quote', authenticate, requireRole('seller'), validate(schemas.createQuotation), validateUuidParam('id'), createQuotation);
 router.get('/my-quotations', authenticate, requireRole('seller'), getMyQuotations);
 
 // Buyer route
-router.post('/quotations/:id/accept', authenticate, requireRole('buyer'), acceptQuotation);
+router.post('/quotations/:id/accept', authenticate, requireRole('buyer'), validateUuidParam('id'), acceptQuotation);
 
 export default router;
 
